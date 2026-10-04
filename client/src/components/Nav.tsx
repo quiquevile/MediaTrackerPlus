@@ -10,6 +10,7 @@ import { useDarkMode } from 'src/hooks/darkMode';
 export const useRouteNames = () => {
   return [
     { path: '/', name: t`Home` },
+    { path: '/history', name: t`History` },
     { path: '/tv', name: t`Tv` },
     { path: '/movies', name: t`Movies` },
     { path: '/games', name: t`Games` },

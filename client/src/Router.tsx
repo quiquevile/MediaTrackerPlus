@@ -26,6 +26,7 @@ import { ListsPage } from 'src/pages/ListsPage';
 import { Random } from './pages/Random';
 import Statistics from './pages/Statistics';
 import { ItemsPageStatistic } from './pages/ItemsPageStatistic';
+import { HistoryPage } from './pages/History';
 
 export const MyRouter: FunctionComponent = () => {
   const { isLoading, user } = useUser();
@@ -53,6 +54,8 @@ export const MyRouter: FunctionComponent = () => {
               )}
 
               <Route path="/" element={<HomePage />} />
+
+              <Route path="/history" element={<HistoryPage />} />
 
               <Route
                 path="/settings/*"
