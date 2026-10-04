@@ -1,3 +1,20 @@
+# MediaTracker-Plus (quiquevile fork)
+
+Personal fork of [dnlwttnbrg/MediaTrackerPlus](https://github.com/dnlwttnbrg/MediaTrackerPlus)
+for self-hosting on a Raspberry Pi 4, focused on movies, TV shows and books
+tracking.
+
+## Changes vs upstream
+
+- Removed the tracked `mtp01.tar` docker image export from the repo.
+- `docker-compose.yaml` uses `dnlwttnbrg/mediatracker-plus:latest`.
+- Working docker `HEALTHCHECK` against the local `/api/configuration` endpoint.
+
+See [CHANGELOG.md](CHANGELOG.md) for details. Everything below is the
+original upstream README, kept unaltered.
+
+---
+
 # MediaTracker-Plus &middot; [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/dnlwttnbrg/MediaTrackerPlus/blob/main/LICENSE.md) [![Crowdin](https://badges.crowdin.net/mediatracker-plus/localized.svg)](https://crowdin.com/project/mediatracker-plus) [![Docker Image Size](https://img.shields.io/docker/image-size/dnlwttnbrg/mediatracker-plus)](https://hub.docker.com/repository/docker/dnlwttnbrg/mediatracker-plus) [![Docker Pulls](https://img.shields.io/docker/pulls/dnlwttnbrg/mediatracker-plus)](https://hub.docker.com/repository/docker/dnlwttnbrg/mediatracker-plus) [![CodeFactor](https://www.codefactor.io/repository/github/dnlwttnbrg/mediatrackerplus/badge)](https://www.codefactor.io/repository/github/dnlwttnbrg/mediatrackerplus) [![codecov](https://codecov.io/github/dnlwttnbrg/MediaTrackerPlus/graph/badge.svg?token=7O9IV84JVL)](https://codecov.io/github/dnlwttnbrg/MediaTrackerPlus)
 
 Self hosted platform for tracking movies, tv shows, video games, books and audiobooks, highly inspired by [flox](https://github.com/devfake/flox).
