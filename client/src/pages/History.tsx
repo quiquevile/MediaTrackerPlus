@@ -42,6 +42,18 @@ export const HistoryPage: FunctionComponent = () => {
     resetPage();
   };
 
+  const onClearFilters = () => {
+    setMediaType(undefined);
+    setYear('');
+    setGenre('');
+    setSearchInput('');
+    setFilter('');
+    setRatedFilter('all');
+    setOrderBy('date');
+    setSortOrder('desc');
+    resetPage();
+  };
+
   const { entries, isLoading, numberOfPages, numberOfItemsTotal } =
     useSeenHistory({
       page: page,
@@ -74,6 +86,14 @@ export const HistoryPage: FunctionComponent = () => {
 
               <button className="px-4 ml-2 transition-shadow duration-100 hover:shadow hover:shadow-indigo-500/50">
                 <Trans>Search</Trans>
+              </button>
+
+              <button
+                type="button"
+                onClick={onClearFilters}
+                className="px-4 ml-2 transition-shadow duration-100 hover:shadow hover:shadow-indigo-500/50"
+              >
+                <Trans>Clear</Trans>
               </button>
             </form>
 
