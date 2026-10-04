@@ -22,7 +22,8 @@ type RatedFilter = 'all' | 'rated' | 'unrated';
 export const HistoryPage: FunctionComponent = () => {
   const [page, setPage] = useState<number>(1);
   const [mediaType, setMediaType] = useState<MediaType | undefined>(undefined);
-  const [years, setYears] = useState<string[]>([]);
+  const [viewedYears, setViewedYears] = useState<string[]>([]);
+  const [releaseYears, setReleaseYears] = useState<string[]>([]);
   const [genres, setGenres] = useState<string[]>([]);
   const [searchInput, setSearchInput] = useState<string>('');
   const [filter, setFilter] = useState<string>('');
@@ -45,7 +46,8 @@ export const HistoryPage: FunctionComponent = () => {
 
   const onClearFilters = () => {
     setMediaType(undefined);
-    setYears([]);
+    setViewedYears([]);
+    setReleaseYears([]);
     setGenres([]);
     setSearchInput('');
     setFilter('');
@@ -59,7 +61,9 @@ export const HistoryPage: FunctionComponent = () => {
     useSeenHistory({
       page: page,
       mediaType: mediaType,
-      years: years.length > 0 ? years.join(',') : undefined,
+      viewedYears: viewedYears.length > 0 ? viewedYears.join(',') : undefined,
+      releaseYears:
+        releaseYears.length > 0 ? releaseYears.join(',') : undefined,
       genres: genres.length > 0 ? genres.join(',') : undefined,
       filter: filter || undefined,
       onlyWithUserRating: ratedFilter === 'rated' ? true : undefined,
@@ -68,7 +72,11 @@ export const HistoryPage: FunctionComponent = () => {
       sortOrder: sortOrder,
     });
 
-  const { years: facetYears, genres: facetGenres } = useSeenHistoryFacets();
+  const {
+    viewedYears: facetViewedYears,
+    releaseYears: facetReleaseYears,
+    genres: facetGenres,
+  } = useSeenHistoryFacets();
 
   return (
     <>
@@ -122,11 +130,21 @@ export const HistoryPage: FunctionComponent = () => {
 
             <div className="flex flex-wrap items-center gap-2 mb-2">
               <MultiSelect
-                label={t`Year`}
-                values={facetYears}
-                selected={years}
+                label={t`Seen year`}
+                values={facetViewedYears}
+                selected={viewedYears}
                 onChange={(selected) => {
-                  setYears(selected);
+                  setViewedYears(selected);
+                  resetPage();
+                }}
+              />
+
+              <MultiSelect
+                label={t`Year`}
+                values={facetReleaseYears}
+                selected={releaseYears}
+                onChange={(selected) => {
+                  setReleaseYears(selected);
                   resetPage();
                 }}
               />

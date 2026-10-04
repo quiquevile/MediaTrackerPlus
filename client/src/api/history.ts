@@ -23,7 +23,8 @@ export const useSeenHistoryFacets = () => {
   );
 
   return {
-    years: data?.years || [],
+    viewedYears: data?.viewedYears || [],
+    releaseYears: data?.releaseYears || [],
     genres: data?.genres || [],
     isLoading: !isFetched,
   };
