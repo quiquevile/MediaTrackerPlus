@@ -52,12 +52,17 @@ export type SeenHistoryEntry = {
 export type GetSeenHistoryArgs = {
   userId: number;
   mediaType?: string;
-  year?: string;
-  genre?: string;
+  years?: string;
+  genres?: string;
   filter?: string;
   onlyWithUserRating?: boolean;
   onlyWithoutUserRating?: boolean;
   orderBy?: SeenHistoryOrderBy;
   sortOrder?: 'asc' | 'desc';
   page?: number;
+};
+
+export type SeenHistoryFacets = {
+  years: string[];
+  genres: string[];
 };

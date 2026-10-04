@@ -2,6 +2,7 @@ import { Database } from 'src/dbconfig';
 import {
   GetSeenHistoryArgs,
   SeenHistoryEntry,
+  SeenHistoryFacets,
 } from 'src/entity/seen';
 import { Pagination } from 'src/repository/mediaItem';
 import { Knex } from 'knex';
@@ -10,12 +11,18 @@ const itemsPerPage = 40;
 
 const yearPattern = /^[0-9]{4}$/;
 
+const splitList = (value?: string): string[] =>
+  (value || '')
+    .split(',')
+    .map((item) => item.trim())
+    .filter((item) => item.length > 0);
+
 const applyFilters = (query: Knex.QueryBuilder, args: GetSeenHistoryArgs) => {
   const {
     userId,
     mediaType,
-    year,
-    genre,
+    years,
+    genres,
     filter,
     onlyWithUserRating,
     onlyWithoutUserRating,
@@ -27,19 +34,35 @@ const applyFilters = (query: Knex.QueryBuilder, args: GetSeenHistoryArgs) => {
     query.andWhere('mediaItem.mediaType', mediaType);
   }
 
-  if (genre) {
-    query.andWhere('mediaItem.genres', 'LIKE', `%${genre}%`);
+  const genreValues = splitList(genres);
+
+  if (genreValues.length > 0) {
+    query.andWhere((builder: Knex.QueryBuilder) => {
+      genreValues.forEach((genre, index) => {
+        if (index === 0) {
+          builder.where('mediaItem.genres', 'LIKE', `%${genre}%`);
+        } else {
+          builder.orWhere('mediaItem.genres', 'LIKE', `%${genre}%`);
+        }
+      });
+    });
   }
 
   if (filter) {
     query.andWhere('mediaItem.title', 'LIKE', `%${filter}%`);
   }
 
-  if (year && yearPattern.test(year)) {
+  const yearValues = splitList(years).filter((year) =>
+    yearPattern.test(year)
+  );
+
+  if (yearValues.length > 0) {
     query.andWhere(
       Database.knex.raw(
-        `strftime('%Y', datetime("seen"."date" / 1000, 'unixepoch')) = ?`,
-        [year]
+        `strftime('%Y', datetime("seen"."date" / 1000, 'unixepoch')) in (${yearValues
+          .map(() => '?')
+          .join(', ')})`,
+        yearValues
       )
     );
   }
@@ -210,5 +233,42 @@ export const getSeenHistoryKnex = async (
     total: res.length,
     page: 1,
     totalPages: 1,
+  };
+};
+
+export const getSeenHistoryFacetsKnex = async (
+  userId: number
+): Promise<SeenHistoryFacets> => {
+  const yearRows = await Database.knex('seen')
+    .distinct(
+      Database.knex.raw(
+        `strftime('%Y', datetime("date" / 1000, 'unixepoch')) as year`
+      )
+    )
+    .where('userId', userId)
+    .whereNotNull('date')
+    .orderBy('year', 'desc');
+
+  const genreRows = await Database.knex('mediaItem')
+    .select('mediaItem.genres')
+    .join('seen', 'seen.mediaItemId', 'mediaItem.id')
+    .where('seen.userId', userId)
+    .whereNotNull('mediaItem.genres')
+    .groupBy('mediaItem.genres');
+
+  const genres = [
+    ...new Set(
+      genreRows.flatMap((row) =>
+        String(row['genres'])
+          .split(',')
+          .map((genre) => genre.trim())
+          .filter((genre) => genre.length > 0)
+      )
+    ),
+  ].sort((a, b) => a.localeCompare(b));
+
+  return {
+    years: yearRows.map((row) => String(row['year'])),
+    genres: genres,
   };
 };

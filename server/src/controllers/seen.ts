@@ -11,7 +11,11 @@ import {
 } from 'src/repository/mediaItem';
 import { tvSeasonRepository } from 'src/repository/season';
 import { seenRepository } from 'src/repository/seen';
-import { Seen, SeenHistoryEntry } from 'src/entity/seen';
+import {
+  Seen,
+  SeenHistoryEntry,
+  SeenHistoryFacets,
+} from 'src/entity/seen';
 import { logger } from 'src/logger';
 import { listItemRepository } from 'src/repository/listItemRepository';
 import { MediaType } from 'src/entity/mediaItem';
@@ -370,8 +374,8 @@ export class SeenController {
     path: '/api/seen/history';
     requestQuery: {
       mediaType?: string;
-      year?: string;
-      genre?: string;
+      years?: string;
+      genres?: string;
       filter?: string;
       onlyWithUserRating?: boolean;
       onlyWithoutUserRating?: boolean;
@@ -385,8 +389,8 @@ export class SeenController {
 
     const {
       mediaType,
-      year,
-      genre,
+      years,
+      genres,
       filter,
       onlyWithUserRating,
       onlyWithoutUserRating,
@@ -404,8 +408,8 @@ export class SeenController {
     const result = await seenRepository.history({
       userId: userId,
       mediaType: mediaType,
-      year: year,
-      genre: genre,
+      years: years,
+      genres: genres,
       filter: filter,
       onlyWithUserRating: onlyWithUserRating,
       onlyWithoutUserRating: onlyWithoutUserRating,
@@ -415,5 +419,19 @@ export class SeenController {
     });
 
     res.send(result);
+  });
+
+  /**
+   * @description Get distinct viewing years and genres for the history filters
+   * @openapi_operationId historyFacets
+   */
+  historyFacets = createExpressRoute<{
+    method: 'get';
+    path: '/api/seen/history/facets';
+    responseBody: SeenHistoryFacets;
+  }>(async (req, res) => {
+    const userId = Number(req.user);
+
+    res.send(await seenRepository.historyFacets(userId));
   });
 }

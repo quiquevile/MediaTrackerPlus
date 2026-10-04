@@ -914,8 +914,8 @@ router.get(
       type: 'object',
       properties: {
         mediaType: { type: ['string', 'null'] },
-        year: { type: ['string', 'null'] },
-        genre: { type: ['string', 'null'] },
+        years: { type: ['string', 'null'] },
+        genres: { type: ['string', 'null'] },
         filter: { type: ['string', 'null'] },
         onlyWithUserRating: { type: ['boolean', 'null'] },
         onlyWithoutUserRating: { type: ['boolean', 'null'] },
@@ -926,6 +926,11 @@ router.get(
     },
   }),
   _SeenController.history
+);
+router.get(
+  '/api/seen/history/facets',
+  validatorHandler({}),
+  _SeenController.historyFacets
 );
 router.get(
   '/api/statistics/summary',

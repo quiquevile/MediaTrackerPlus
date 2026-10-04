@@ -1775,7 +1775,7 @@
             }
           },
           {
-            "name": "year",
+            "name": "years",
             "in": "query",
             "required": false,
             "schema": {
@@ -1784,7 +1784,7 @@
             }
           },
           {
-            "name": "genre",
+            "name": "genres",
             "in": "query",
             "required": false,
             "schema": {
@@ -1895,6 +1895,27 @@
                     "total",
                     "totalPages"
                   ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/seen/history/facets": {
+      "get": {
+        "description": "Get distinct viewing years and genres for the history filters",
+        "tags": [
+          "Seen"
+        ],
+        "operationId": "historyFacets",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SeenHistoryFacets"
                 }
               }
             }
@@ -4676,6 +4697,27 @@
         "required": [
           "id",
           "mediaItem"
+        ]
+      },
+      "SeenHistoryFacets": {
+        "type": "object",
+        "properties": {
+          "years": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "genres": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "genres",
+          "years"
         ]
       },
       "StatisticsSummaryResponse": {

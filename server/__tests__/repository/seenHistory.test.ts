@@ -80,15 +80,42 @@ describe('seen history', () => {
   });
 
   test('filter by viewing year', async () => {
-    const res = await seenRepository.history({ userId: 0, year: '2024' });
+    const res = await seenRepository.history({ userId: 0, years: '2024' });
 
     expect(res.data.map((e) => e.id).sort()).toEqual([2, 3]);
   });
 
+  test('filter by multiple viewing years (OR)', async () => {
+    const res = await seenRepository.history({
+      userId: 0,
+      years: '2024, 2022',
+    });
+
+    expect(res.data.map((e) => e.id).sort()).toEqual([2, 3, 4]);
+  });
+
+  test('invalid years are ignored', async () => {
+    const res = await seenRepository.history({
+      userId: 0,
+      years: 'bogus,2023',
+    });
+
+    expect(res.data.map((e) => e.id)).toEqual([1]);
+  });
+
   test('filter by genre', async () => {
-    const res = await seenRepository.history({ userId: 0, genre: 'Drama' });
+    const res = await seenRepository.history({ userId: 0, genres: 'Drama' });
 
     expect(res.data.map((e) => e.id).sort()).toEqual([1, 2]);
+  });
+
+  test('filter by multiple genres (OR)', async () => {
+    const res = await seenRepository.history({
+      userId: 0,
+      genres: 'Fantasy,Drama',
+    });
+
+    expect(res.data.map((e) => e.id).sort()).toEqual([1, 2, 5]);
   });
 
   test('filter by title', async () => {
@@ -132,5 +159,18 @@ describe('seen history', () => {
     const res = await seenRepository.history({ userId: 999 });
 
     expect(res.total).toEqual(0);
+  });
+
+  test('facets list existing years and genres', async () => {
+    const facets = await seenRepository.historyFacets(0);
+
+    expect(facets.years).toEqual(['2024', '2023', '2022']);
+    expect(facets.genres).toEqual(['Action', 'Drama', 'Fantasy']);
+  });
+
+  test('facets are empty for unknown users', async () => {
+    const facets = await seenRepository.historyFacets(999);
+
+    expect(facets).toEqual({ years: [], genres: [] });
   });
 });
