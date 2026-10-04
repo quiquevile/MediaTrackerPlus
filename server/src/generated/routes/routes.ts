@@ -914,7 +914,8 @@ router.get(
       type: 'object',
       properties: {
         mediaType: { type: ['string', 'null'] },
-        years: { type: ['string', 'null'] },
+        viewedYears: { type: ['string', 'null'] },
+        releaseYears: { type: ['string', 'null'] },
         genres: { type: ['string', 'null'] },
         filter: { type: ['string', 'null'] },
         onlyWithUserRating: { type: ['boolean', 'null'] },

@@ -21,7 +21,8 @@ const applyFilters = (query: Knex.QueryBuilder, args: GetSeenHistoryArgs) => {
   const {
     userId,
     mediaType,
-    years,
+    viewedYears,
+    releaseYears,
     genres,
     filter,
     onlyWithUserRating,
@@ -52,17 +53,32 @@ const applyFilters = (query: Knex.QueryBuilder, args: GetSeenHistoryArgs) => {
     query.andWhere('mediaItem.title', 'LIKE', `%${filter}%`);
   }
 
-  const yearValues = splitList(years).filter((year) =>
+  const viewedYearValues = splitList(viewedYears).filter((year) =>
     yearPattern.test(year)
   );
 
-  if (yearValues.length > 0) {
+  if (viewedYearValues.length > 0) {
     query.andWhere(
       Database.knex.raw(
-        `strftime('%Y', datetime("seen"."date" / 1000, 'unixepoch')) in (${yearValues
+        `strftime('%Y', datetime("seen"."date" / 1000, 'unixepoch')) in (${viewedYearValues
           .map(() => '?')
           .join(', ')})`,
-        yearValues
+        viewedYearValues
+      )
+    );
+  }
+
+  const releaseYearValues = splitList(releaseYears).filter((year) =>
+    yearPattern.test(year)
+  );
+
+  if (releaseYearValues.length > 0) {
+    query.andWhere(
+      Database.knex.raw(
+        `substr("mediaItem"."releaseDate", 1, 4) in (${releaseYearValues
+          .map(() => '?')
+          .join(', ')})`,
+        releaseYearValues
       )
     );
   }
@@ -239,7 +255,7 @@ export const getSeenHistoryKnex = async (
 export const getSeenHistoryFacetsKnex = async (
   userId: number
 ): Promise<SeenHistoryFacets> => {
-  const yearRows = await Database.knex('seen')
+  const viewedYearRows = await Database.knex('seen')
     .distinct(
       Database.knex.raw(
         `strftime('%Y', datetime("date" / 1000, 'unixepoch')) as year`
@@ -247,6 +263,18 @@ export const getSeenHistoryFacetsKnex = async (
     )
     .where('userId', userId)
     .whereNotNull('date')
+    .orderBy('year', 'desc');
+
+  const releaseYearRows = await Database.knex('mediaItem')
+    .distinct(
+      Database.knex.raw(
+        `substr("mediaItem"."releaseDate", 1, 4) as year`
+      )
+    )
+    .join('seen', 'seen.mediaItemId', 'mediaItem.id')
+    .where('seen.userId', userId)
+    .whereNotNull('mediaItem.releaseDate')
+    .whereNot('mediaItem.releaseDate', '')
     .orderBy('year', 'desc');
 
   const genreRows = await Database.knex('mediaItem')
@@ -268,7 +296,10 @@ export const getSeenHistoryFacetsKnex = async (
   ].sort((a, b) => a.localeCompare(b));
 
   return {
-    years: yearRows.map((row) => String(row['year'])),
+    viewedYears: viewedYearRows.map((row) => String(row['year'])),
+    releaseYears: releaseYearRows
+      .map((row) => String(row['year']))
+      .filter((year) => yearPattern.test(year)),
     genres: genres,
   };
 };

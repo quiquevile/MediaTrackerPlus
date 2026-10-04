@@ -52,7 +52,8 @@ export type SeenHistoryEntry = {
 export type GetSeenHistoryArgs = {
   userId: number;
   mediaType?: string;
-  years?: string;
+  viewedYears?: string;
+  releaseYears?: string;
   genres?: string;
   filter?: string;
   onlyWithUserRating?: boolean;
@@ -63,6 +64,7 @@ export type GetSeenHistoryArgs = {
 };
 
 export type SeenHistoryFacets = {
-  years: string[];
+  viewedYears: string[];
+  releaseYears: string[];
   genres: string[];
 };

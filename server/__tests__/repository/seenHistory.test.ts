@@ -80,7 +80,10 @@ describe('seen history', () => {
   });
 
   test('filter by viewing year', async () => {
-    const res = await seenRepository.history({ userId: 0, years: '2024' });
+    const res = await seenRepository.history({
+      userId: 0,
+      viewedYears: '2024',
+    });
 
     expect(res.data.map((e) => e.id).sort()).toEqual([2, 3]);
   });
@@ -88,19 +91,38 @@ describe('seen history', () => {
   test('filter by multiple viewing years (OR)', async () => {
     const res = await seenRepository.history({
       userId: 0,
-      years: '2024, 2022',
+      viewedYears: '2024, 2022',
     });
 
     expect(res.data.map((e) => e.id).sort()).toEqual([2, 3, 4]);
   });
 
-  test('invalid years are ignored', async () => {
+  test('invalid viewing years are ignored', async () => {
     const res = await seenRepository.history({
       userId: 0,
-      years: 'bogus,2023',
+      viewedYears: 'bogus,2023',
     });
 
     expect(res.data.map((e) => e.id)).toEqual([1]);
+  });
+
+  test('filter by release year', async () => {
+    const res = await seenRepository.history({
+      userId: 0,
+      releaseYears: '2001',
+    });
+
+    expect(res.data.map((e) => e.id).sort()).toEqual([1, 2]);
+  });
+
+  test('viewing and release years combine with AND', async () => {
+    const res = await seenRepository.history({
+      userId: 0,
+      viewedYears: '2024',
+      releaseYears: '2002',
+    });
+
+    expect(res.data.map((e) => e.id)).toEqual([3]);
   });
 
   test('filter by genre', async () => {
@@ -164,13 +186,14 @@ describe('seen history', () => {
   test('facets list existing years and genres', async () => {
     const facets = await seenRepository.historyFacets(0);
 
-    expect(facets.years).toEqual(['2024', '2023', '2022']);
+    expect(facets.viewedYears).toEqual(['2024', '2023', '2022']);
+    expect(facets.releaseYears).toEqual(['2002', '2001']);
     expect(facets.genres).toEqual(['Action', 'Drama', 'Fantasy']);
   });
 
   test('facets are empty for unknown users', async () => {
     const facets = await seenRepository.historyFacets(999);
 
-    expect(facets).toEqual({ years: [], genres: [] });
+    expect(facets).toEqual({ viewedYears: [], releaseYears: [], genres: [] });
   });
 });

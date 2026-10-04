@@ -1775,7 +1775,16 @@
             }
           },
           {
-            "name": "years",
+            "name": "viewedYears",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "releaseYears",
             "in": "query",
             "required": false,
             "schema": {
@@ -4702,7 +4711,13 @@
       "SeenHistoryFacets": {
         "type": "object",
         "properties": {
-          "years": {
+          "viewedYears": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "releaseYears": {
             "type": "array",
             "items": {
               "type": "string"
@@ -4717,7 +4732,8 @@
         },
         "required": [
           "genres",
-          "years"
+          "releaseYears",
+          "viewedYears"
         ]
       },
       "StatisticsSummaryResponse": {

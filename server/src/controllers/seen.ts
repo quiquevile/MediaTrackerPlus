@@ -374,7 +374,8 @@ export class SeenController {
     path: '/api/seen/history';
     requestQuery: {
       mediaType?: string;
-      years?: string;
+      viewedYears?: string;
+      releaseYears?: string;
       genres?: string;
       filter?: string;
       onlyWithUserRating?: boolean;
@@ -389,7 +390,8 @@ export class SeenController {
 
     const {
       mediaType,
-      years,
+      viewedYears,
+      releaseYears,
       genres,
       filter,
       onlyWithUserRating,
@@ -408,7 +410,8 @@ export class SeenController {
     const result = await seenRepository.history({
       userId: userId,
       mediaType: mediaType,
-      years: years,
+      viewedYears: viewedYears,
+      releaseYears: releaseYears,
       genres: genres,
       filter: filter,
       onlyWithUserRating: onlyWithUserRating,
