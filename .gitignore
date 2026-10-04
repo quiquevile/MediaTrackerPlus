@@ -102,6 +102,9 @@ jspm_packages/
 # Output of 'npm pack'
 *.tgz
 
+# Docker image exports (docker save)
+*.tar
+
 # Yarn Integrity file
 .yarn-integrity
 
