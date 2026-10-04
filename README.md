@@ -9,6 +9,7 @@ tracking.
 - Removed the tracked `mtp01.tar` docker image export from the repo.
 - `docker-compose.yaml` uses `dnlwttnbrg/mediatracker-plus:latest`.
 - Working docker `HEALTHCHECK` against the local `/api/configuration` endpoint.
+- 1-10 rating scale (existing ratings are doubled on upgrade).
 
 See [CHANGELOG.md](CHANGELOG.md) for details. Everything below is the
 original upstream README, kept unaltered.
