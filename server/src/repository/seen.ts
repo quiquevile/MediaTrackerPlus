@@ -1,14 +1,26 @@
-import { Seen, seenColumns } from 'src/entity/seen';
+import {
+  GetSeenHistoryArgs,
+  Seen,
+  SeenHistoryEntry,
+  seenColumns,
+} from 'src/entity/seen';
 import { TvEpisode } from 'src/entity/tvepisode';
 import { tvEpisodeRepository } from 'src/repository/episode';
 import { repository } from 'src/repository/repository';
 import { Database } from 'src/dbconfig';
+import { getSeenHistoryKnex } from 'src/knex/queries/seenHistory';
+import { Pagination } from 'src/repository/mediaItem';
 
 class SeenRepository extends repository<Seen>({
   tableName: 'seen',
   columnNames: seenColumns,
   primaryColumnName: 'id',
 }) {
+  public history(
+    args: GetSeenHistoryArgs
+  ): Promise<Pagination<SeenHistoryEntry>> {
+    return getSeenHistoryKnex(args);
+  }
   async deleteForTvSeason(params: { userId: number; seasonId: number }) {
     const { seasonId, userId } = params;
 

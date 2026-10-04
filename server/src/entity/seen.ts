@@ -25,3 +25,39 @@ export class SeenFilters {
     return Boolean(seen.episodeId);
   };
 }
+
+export type SeenHistoryOrderBy = 'date' | 'title';
+
+export type SeenHistoryEntry = {
+  id: number;
+  date?: number;
+  mediaItem: {
+    id: number;
+    title: string;
+    mediaType: string;
+    releaseDate?: string;
+    genres?: string[];
+    poster?: string;
+    posterSmall?: string;
+    userRating?: number;
+  };
+  episode?: {
+    id: number;
+    seasonNumber: number;
+    episodeNumber: number;
+    title: string;
+  };
+};
+
+export type GetSeenHistoryArgs = {
+  userId: number;
+  mediaType?: string;
+  year?: string;
+  genre?: string;
+  filter?: string;
+  onlyWithUserRating?: boolean;
+  onlyWithoutUserRating?: boolean;
+  orderBy?: SeenHistoryOrderBy;
+  sortOrder?: 'asc' | 'desc';
+  page?: number;
+};

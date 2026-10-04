@@ -1757,6 +1757,151 @@
         }
       }
     },
+    "/api/seen/history": {
+      "get": {
+        "description": "Get cross-type seen history, one entry per viewing",
+        "tags": [
+          "Seen"
+        ],
+        "operationId": "history",
+        "parameters": [
+          {
+            "name": "mediaType",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "genre",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "onlyWithUserRating",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "nullable": true
+            }
+          },
+          {
+            "name": "onlyWithoutUserRating",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "nullable": true
+            }
+          },
+          {
+            "name": "orderBy",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "date",
+                "title",
+                null
+              ],
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "sortOrder",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "asc",
+                "desc",
+                null
+              ],
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "nullable": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/SeenHistoryEntry"
+                      }
+                    },
+                    "page": {
+                      "type": "number"
+                    },
+                    "totalPages": {
+                      "type": "number"
+                    },
+                    "from": {
+                      "type": "number"
+                    },
+                    "to": {
+                      "type": "number"
+                    },
+                    "total": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "from",
+                    "page",
+                    "to",
+                    "total",
+                    "totalPages"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/statistics/summary": {
       "get": {
         "tags": [
@@ -4450,6 +4595,88 @@
           "unknown"
         ],
         "type": "string"
+      },
+      "SeenHistoryEntry": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "date": {
+            "type": "number",
+            "nullable": true
+          },
+          "mediaItem": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "number"
+              },
+              "title": {
+                "type": "string"
+              },
+              "mediaType": {
+                "type": "string"
+              },
+              "releaseDate": {
+                "type": "string",
+                "nullable": true
+              },
+              "genres": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "nullable": true
+              },
+              "poster": {
+                "type": "string",
+                "nullable": true
+              },
+              "posterSmall": {
+                "type": "string",
+                "nullable": true
+              },
+              "userRating": {
+                "type": "number",
+                "nullable": true
+              }
+            },
+            "required": [
+              "id",
+              "mediaType",
+              "title"
+            ]
+          },
+          "episode": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "number"
+              },
+              "seasonNumber": {
+                "type": "number"
+              },
+              "episodeNumber": {
+                "type": "number"
+              },
+              "title": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "episodeNumber",
+              "id",
+              "seasonNumber",
+              "title"
+            ],
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "mediaItem"
+        ]
       },
       "StatisticsSummaryResponse": {
         "type": "object",

@@ -907,6 +907,27 @@ router.delete(
   _SeenController.removeFromSeenHistory
 );
 router.get(
+  '/api/seen/history',
+  validatorHandler({
+    requestQuerySchema: {
+      $schema: 'http://json-schema.org/draft-07/schema#',
+      type: 'object',
+      properties: {
+        mediaType: { type: ['string', 'null'] },
+        year: { type: ['string', 'null'] },
+        genre: { type: ['string', 'null'] },
+        filter: { type: ['string', 'null'] },
+        onlyWithUserRating: { type: ['boolean', 'null'] },
+        onlyWithoutUserRating: { type: ['boolean', 'null'] },
+        orderBy: { enum: ['date', 'title', null], type: 'string' },
+        sortOrder: { enum: ['asc', 'desc', null], type: 'string' },
+        page: { type: ['number', 'null'] },
+      },
+    },
+  }),
+  _SeenController.history
+);
+router.get(
   '/api/statistics/summary',
   validatorHandler({}),
   _StatisticsController.summary

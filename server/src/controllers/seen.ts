@@ -4,10 +4,14 @@ import { addHours, parseISO } from 'date-fns';
 import { createExpressRoute } from 'typescript-routes-to-openapi-server';
 import { TvEpisodeFilters } from 'src/entity/tvepisode';
 import { tvEpisodeRepository } from 'src/repository/episode';
-import { LastSeenAt, mediaItemRepository } from 'src/repository/mediaItem';
+import {
+  LastSeenAt,
+  mediaItemRepository,
+  Pagination,
+} from 'src/repository/mediaItem';
 import { tvSeasonRepository } from 'src/repository/season';
 import { seenRepository } from 'src/repository/seen';
-import { Seen } from 'src/entity/seen';
+import { Seen, SeenHistoryEntry } from 'src/entity/seen';
 import { logger } from 'src/logger';
 import { listItemRepository } from 'src/repository/listItemRepository';
 import { MediaType } from 'src/entity/mediaItem';
@@ -333,8 +337,7 @@ export class SeenController {
       seasonId?: number;
       episodeId?: number;
     };
-  }>(async (req, res) => {
-    const userId = Number(req.user);
+  }>(async (req, res) => {    const userId = Number(req.user);
 
     const { mediaItemId, seasonId, episodeId } = req.query;
 
@@ -356,5 +359,61 @@ export class SeenController {
     }
 
     res.send();
+  });
+
+  /**
+   * @description Get cross-type seen history, one entry per viewing
+   * @openapi_operationId history
+   */
+  history = createExpressRoute<{
+    method: 'get';
+    path: '/api/seen/history';
+    requestQuery: {
+      mediaType?: string;
+      year?: string;
+      genre?: string;
+      filter?: string;
+      onlyWithUserRating?: boolean;
+      onlyWithoutUserRating?: boolean;
+      orderBy?: 'date' | 'title';
+      sortOrder?: 'asc' | 'desc';
+      page?: number;
+    };
+    responseBody: Pagination<SeenHistoryEntry>;
+  }>(async (req, res) => {
+    const userId = Number(req.user);
+
+    const {
+      mediaType,
+      year,
+      genre,
+      filter,
+      onlyWithUserRating,
+      onlyWithoutUserRating,
+      page,
+    } = req.query;
+
+    const orderBy = req.query.orderBy || 'date';
+    const sortOrder = req.query.sortOrder || 'desc';
+
+    if (page !== undefined && page <= 0) {
+      res.status(400);
+      return;
+    }
+
+    const result = await seenRepository.history({
+      userId: userId,
+      mediaType: mediaType,
+      year: year,
+      genre: genre,
+      filter: filter,
+      onlyWithUserRating: onlyWithUserRating,
+      onlyWithoutUserRating: onlyWithoutUserRating,
+      orderBy: orderBy,
+      sortOrder: sortOrder,
+      page: page,
+    });
+
+    res.send(result);
   });
 }
