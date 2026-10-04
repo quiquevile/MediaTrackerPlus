@@ -9,6 +9,8 @@ import { SelectSeenDate } from 'src/components/SelectSeenDate';
 import { formatEpisodeNumber, formatSeasonNumber } from 'src/utils';
 import { queryClient } from 'src/App';
 
+export const MAX_RATING = 10;
+
 export const StarRating: FunctionComponent<
   | { mediaItem: MediaItemItemsResponse }
   | { mediaItem: MediaItemItemsResponse; season: TvSeason }
@@ -37,7 +39,7 @@ export const StarRating: FunctionComponent<
 
   return (
     <span className="flex cursor-pointer w-min">
-      {new Array(5).fill(null).map((value, index) => {
+      {new Array(MAX_RATING).fill(null).map((value, index) => {
         return (
           <span
             key={index}
@@ -116,7 +118,7 @@ const StarRatingModal: FunctionComponent<
       </div>
 
       <span className="flex px-1 m-auto cursor-pointer w-min dark:text-slate-200">
-        {new Array(5).fill(null).map((value, index) => {
+        {new Array(MAX_RATING).fill(null).map((value, index) => {
           return (
             <span
               key={index}

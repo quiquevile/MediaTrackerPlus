@@ -418,7 +418,7 @@ export class TraktTvImportController {
               ({ mediaItem, item }): UserRating => ({
                 userId: userId,
                 mediaItemId: mediaItem.id,
-                rating: item.rating / 2,
+                rating: item.rating,
                 date: new Date(item.rated_at).getTime(),
               })
             );
@@ -431,7 +431,7 @@ export class TraktTvImportController {
               ({ mediaItem, item }): UserRating => ({
                 userId: userId,
                 mediaItemId: mediaItem.id,
-                rating: item.rating / 2,
+                rating: item.rating,
                 date: new Date(item.rated_at).getTime(),
               })
             );
@@ -446,7 +446,7 @@ export class TraktTvImportController {
               ({ mediaItem, item, season }): UserRating => ({
                 userId: userId,
                 mediaItemId: mediaItem.id,
-                rating: item.rating / 2,
+                rating: item.rating,
                 date: new Date(item.rated_at).getTime(),
                 seasonId: season.id,
               })
@@ -463,7 +463,7 @@ export class TraktTvImportController {
               ({ mediaItem, item, episode }): UserRating => ({
                 userId: userId,
                 mediaItemId: mediaItem.id,
-                rating: item.rating / 2,
+                rating: item.rating,
                 date: new Date(item.rated_at).getTime(),
                 episodeId: episode.id,
               })

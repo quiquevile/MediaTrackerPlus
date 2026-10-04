@@ -115,7 +115,7 @@ export const importFromGoodreadsRss = async (
       (item): UserRating => ({
         mediaItemId: mediaItemByGoodreadsIdMap[item.book_id].id,
         userId: userId,
-        rating: item.user_rating,
+        rating: item.user_rating ? item.user_rating * 2 : undefined,
         review: item.user_review,
         date: new Date(item.user_date_added).getTime(),
       })

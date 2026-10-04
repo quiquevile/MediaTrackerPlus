@@ -24,6 +24,15 @@ export class RatingController {
 
     const { mediaItemId, seasonId, episodeId, rating, review } = req.body;
 
+    if (
+      rating != null &&
+      (typeof rating !== 'number' || rating < 0 || rating > 10)
+    ) {
+      res.status(400);
+      res.send('Rating must be a number between 0 and 10');
+      return;
+    }
+
     const userRating: UserRating = {
       date: new Date().getTime(),
       mediaItemId: mediaItemId,
