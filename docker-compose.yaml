@@ -7,7 +7,7 @@ services:
     volumes:
       - ${HOME}/.config/mediatracker:/storage
       - assetsVolume:/assets
-    image: bonukai/mediatracker
+    image: dnlwttnbrg/mediatracker-plus:latest
 
 volumes:
   assetsVolume: null
