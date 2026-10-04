@@ -311,6 +311,7 @@
   "{0, plural, one {Seen 1 time} other {Seen # times}}": "{0, plural, one {1 mal gesehen} other {# mal gesehen}}",
   "{0, plural, other {unseen}}": "{0, plural, other {ungesehen}}",
   "{0}": "",
+  "{0} selected": "",
   "{count, plural, one {Do you want to remove # seen history entry?} other {Do you want to remove all # seen history entries?}}": "{count, plural, one {Möchten Sie # Einträge von der Gesehenliste entfernen?} other {Möchten Sie alle # Einträge von der Gesehenliste entfernen?}}",
   "{duration, plural, one {minute} other {minutes}}": "{duration, plural, one {Minute} other {Minuten}}",
   "{numberOfItemsTotal, plural, one {1 item {0} {1}} other {# item {2} {3}}}": "",

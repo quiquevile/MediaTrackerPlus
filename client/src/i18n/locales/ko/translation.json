@@ -311,6 +311,7 @@
   "{0, plural, one {Seen 1 time} other {Seen # times}}": "{0, plural, one {1번 시청} other {#번 시청}}",
   "{0, plural, other {unseen}}": "{0, plural, other {감상 안 함}}",
   "{0}": "",
+  "{0} selected": "",
   "{count, plural, one {Do you want to remove # seen history entry?} other {Do you want to remove all # seen history entries?}}": "{count, plural, one {시청 기록에서 #개의 항목을 제거하시겠습니까?} other {시청 기록에서 #개의 항목을 제거하시겠습니까?}}",
   "{duration, plural, one {minute} other {minutes}}": "{duration, plural, one {분} other {분}}",
   "{numberOfItemsTotal, plural, one {1 item {0} {1}} other {# item {2} {3}}}": "",

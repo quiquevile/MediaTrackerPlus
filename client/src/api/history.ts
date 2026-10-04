@@ -16,3 +16,15 @@ export const useSeenHistory = (args: Seen.History.RequestQuery) => {
     numberOfItemsTotal: data?.total,
   };
 };
+
+export const useSeenHistoryFacets = () => {
+  const { data, isFetched } = useQuery(['seenHistoryFacets'], async () =>
+    mediaTrackerApi.seen.historyFacets()
+  );
+
+  return {
+    years: data?.years || [],
+    genres: data?.genres || [],
+    isLoading: !isFetched,
+  };
+};

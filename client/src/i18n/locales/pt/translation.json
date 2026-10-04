@@ -297,6 +297,7 @@
   "{0, plural, one {Read 1 time} other {Read # times}}": "",
   "{0, plural, one {Seen 1 time} other {Seen # times}}": "",
   "{0}": "",
+  "{0} selected": "",
   "{count, plural, one {Do you want to remove # seen history entry?} other {Do you want to remove all # seen history entries?}}": "",
   "{duration, plural, one {minute} other {minutes}}": "",
   "{numberOfItemsTotal, plural, one {1 item {0} {1}} other {# item {2} {3}}}": "",

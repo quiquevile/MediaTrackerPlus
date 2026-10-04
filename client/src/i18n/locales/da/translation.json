@@ -310,6 +310,7 @@
   "{0, plural, one {Seen 1 time} other {Seen # times}}": "{0, plural, one {Set 1 gang} other {Set # gange}}",
   "{0, plural, other {unseen}}": "{0, plural, other {uafspillet}}",
   "{0}": "",
+  "{0} selected": "",
   "{count, plural, one {Do you want to remove # seen history entry?} other {Do you want to remove all # seen history entries?}}": "{count, plural, one {Vil du fjerne # afspillet emne fra historikken?} other {Vil du fjerne alle # afspillede emner fra historikken?}}",
   "{duration, plural, one {minute} other {minutes}}": "{duration, plural, one {minut} other {minutter}}",
   "{numberOfItemsTotal, plural, one {1 item {0} {1}} other {# item {2} {3}}}": "",

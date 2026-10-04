@@ -3,8 +3,9 @@ import clsx from 'clsx';
 import { t, Trans } from '@lingui/macro';
 
 import { MediaType } from 'mediatracker-api';
-import { useSeenHistory } from 'src/api/history';
+import { useSeenHistory, useSeenHistoryFacets } from 'src/api/history';
 import { HistoryPanel } from 'src/components/HistoryPanel';
+import { MultiSelect } from 'src/components/MultiSelect';
 import { Pagination } from 'src/components/PaginatedGridItems';
 
 const mediaTypes: { value?: MediaType; label: string }[] = [
@@ -21,8 +22,8 @@ type RatedFilter = 'all' | 'rated' | 'unrated';
 export const HistoryPage: FunctionComponent = () => {
   const [page, setPage] = useState<number>(1);
   const [mediaType, setMediaType] = useState<MediaType | undefined>(undefined);
-  const [year, setYear] = useState<string>('');
-  const [genre, setGenre] = useState<string>('');
+  const [years, setYears] = useState<string[]>([]);
+  const [genres, setGenres] = useState<string[]>([]);
   const [searchInput, setSearchInput] = useState<string>('');
   const [filter, setFilter] = useState<string>('');
   const [ratedFilter, setRatedFilter] = useState<RatedFilter>('all');
@@ -44,8 +45,8 @@ export const HistoryPage: FunctionComponent = () => {
 
   const onClearFilters = () => {
     setMediaType(undefined);
-    setYear('');
-    setGenre('');
+    setYears([]);
+    setGenres([]);
     setSearchInput('');
     setFilter('');
     setRatedFilter('all');
@@ -58,14 +59,16 @@ export const HistoryPage: FunctionComponent = () => {
     useSeenHistory({
       page: page,
       mediaType: mediaType,
-      year: year.trim() || undefined,
-      genre: genre.trim() || undefined,
+      years: years.length > 0 ? years.join(',') : undefined,
+      genres: genres.length > 0 ? genres.join(',') : undefined,
       filter: filter || undefined,
       onlyWithUserRating: ratedFilter === 'rated' ? true : undefined,
       onlyWithoutUserRating: ratedFilter === 'unrated' ? true : undefined,
       orderBy: orderBy,
       sortOrder: sortOrder,
     });
+
+  const { years: facetYears, genres: facetGenres } = useSeenHistoryFacets();
 
   return (
     <>
@@ -118,26 +121,24 @@ export const HistoryPage: FunctionComponent = () => {
             </div>
 
             <div className="flex flex-wrap items-center gap-2 mb-2">
-              <input
-                type="text"
-                value={year}
-                onChange={(e) => {
-                  setYear(e.currentTarget.value);
+              <MultiSelect
+                label={t`Year`}
+                values={facetYears}
+                selected={years}
+                onChange={(selected) => {
+                  setYears(selected);
                   resetPage();
                 }}
-                placeholder={t`Year`}
-                className="w-24"
               />
 
-              <input
-                type="text"
-                value={genre}
-                onChange={(e) => {
-                  setGenre(e.currentTarget.value);
+              <MultiSelect
+                label={t`Genre`}
+                values={facetGenres}
+                selected={genres}
+                onChange={(selected) => {
+                  setGenres(selected);
                   resetPage();
                 }}
-                placeholder={t`Genre`}
-                className="w-32"
               />
 
               <select
