@@ -15,6 +15,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   first. Local title search plus filters by media type, viewing year, genre
   and rated/unrated. Backed by new `GET /api/seen/history` (paginated, one
   entry per `seen` row with episode details).
+- History year/genre filters are multi-selects preloaded with the existing
+  values (`GET /api/seen/history/facets`), OR-combined within each filter.
 
 ### Changed
 - Existing ratings are doubled by migration `20261004000000_ratingScaleToTen`
