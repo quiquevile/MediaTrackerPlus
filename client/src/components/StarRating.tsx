@@ -9,7 +9,84 @@ import { SelectSeenDate } from 'src/components/SelectSeenDate';
 import { formatEpisodeNumber, formatSeasonNumber } from 'src/utils';
 import { queryClient } from 'src/App';
 
-export const MAX_RATING = 10;
+const STARS = 5;
+
+const valueForStar = (index: number, firstHalf: boolean): number =>
+  index * 2 + (firstHalf ? 1 : 2);
+
+const iconForStar = (
+  shown: number | undefined,
+  index: number
+): 'star' | 'star_half' | 'star_border' => {
+  const value = shown ?? 0;
+
+  if (value >= index * 2 + 2) {
+    return 'star';
+  }
+
+  if (value >= index * 2 + 1) {
+    return 'star_half';
+  }
+
+  return 'star_border';
+};
+
+const StarsInput: FunctionComponent<{
+  rating?: number;
+  sizeClass?: string;
+  onSelect: (value: number) => void;
+}> = (props) => {
+  const { rating, sizeClass, onSelect } = props;
+  const [hoverValue, setHoverValue] = useState<number | null>(null);
+
+  const shown = hoverValue ?? rating;
+
+  return (
+    <span className="flex cursor-pointer w-min">
+      {new Array(STARS).fill(null).map((value, index) => {
+        const icon = iconForStar(shown, index);
+
+        return (
+          <span
+            key={index}
+            className="relative"
+            onPointerLeave={() => setHoverValue(null)}
+          >
+            <span
+              className={clsx(
+                'material-icons hover:text-yellow-400 select-none',
+                sizeClass,
+                {
+                  'text-yellow-400': icon !== 'star_border',
+                }
+              )}
+            >
+              {icon}
+            </span>
+
+            <span
+              className="absolute inset-y-0 left-0 w-1/2"
+              onClick={(e) => {
+                e.preventDefault();
+                onSelect(valueForStar(index, true));
+              }}
+              onPointerEnter={() => setHoverValue(valueForStar(index, true))}
+            />
+
+            <span
+              className="absolute inset-y-0 right-0 w-1/2"
+              onClick={(e) => {
+                e.preventDefault();
+                onSelect(valueForStar(index, false));
+              }}
+              onPointerEnter={() => setHoverValue(valueForStar(index, false))}
+            />
+          </span>
+        );
+      })}
+    </span>
+  );
+};
 
 export const StarRating: FunctionComponent<
   | { mediaItem: MediaItemItemsResponse }
@@ -27,8 +104,6 @@ export const StarRating: FunctionComponent<
     ? season.userRating?.rating
     : mediaItem.userRating?.rating;
 
-  const [hoverIndex, setHoverIndex] = useState(null);
-
   const _setRating = (value: number) =>
     setRating({
       mediaItem: mediaItem,
@@ -37,33 +112,7 @@ export const StarRating: FunctionComponent<
       rating: value,
     });
 
-  return (
-    <span className="flex cursor-pointer w-min">
-      {new Array(MAX_RATING).fill(null).map((value, index) => {
-        return (
-          <span
-            key={index}
-            onClick={(e) => {
-              e.preventDefault();
-              _setRating(index + 1);
-            }}
-            onPointerEnter={() => setHoverIndex(index + 1)}
-            onPointerLeave={() => setHoverIndex(null)}
-            className={clsx(
-              'material-icons hover:text-yellow-400 select-none',
-              {
-                'text-yellow-400': index < rating || index < hoverIndex,
-              }
-            )}
-          >
-            {index < rating && (!hoverIndex || index < hoverIndex)
-              ? 'star'
-              : 'star_border'}
-          </span>
-        );
-      })}
-    </span>
-  );
+  return <StarsInput rating={rating} onSelect={_setRating} />;
 };
 
 const StarRatingModal: FunctionComponent<
@@ -85,9 +134,7 @@ const StarRatingModal: FunctionComponent<
     ? season.userRating?.rating
     : mediaItem.userRating?.rating;
 
-  const [hoverIndex, setHoverIndex] = useState(null);
-  const [review, setReview] = useState(
-    (episode
+  const [review, setReview] = useState(    (episode
       ? episode.userRating?.review
       : season
       ? season.userRating?.review
@@ -118,32 +165,17 @@ const StarRatingModal: FunctionComponent<
       </div>
 
       <span className="flex px-1 m-auto cursor-pointer w-min dark:text-slate-200">
-        {new Array(MAX_RATING).fill(null).map((value, index) => {
-          return (
-            <span
-              key={index}
-              onClick={(e) => {
-                e.preventDefault();
-
-                if (index + 1 === rating) {
-                  onSetRating(null);
-                } else {
-                  onSetRating(index + 1);
-                }
-              }}
-              onPointerEnter={() => setHoverIndex(index + 1)}
-              onPointerLeave={() => setHoverIndex(null)}
-              className={clsx(
-                'material-icons select-none hover:text-yellow-400 text-2xl',
-                (index < rating || index < hoverIndex) && 'text-yellow-400'
-              )}
-            >
-              {index < rating && (!hoverIndex || index < hoverIndex)
-                ? 'star'
-                : 'star_border'}
-            </span>
-          );
-        })}
+        <StarsInput
+          rating={rating}
+          sizeClass="text-2xl"
+          onSelect={(value) => {
+            if (value === rating) {
+              onSetRating(null);
+            } else {
+              onSetRating(value);
+            }
+          }}
+        />
       </span>
       <form
         className="w-full mt-4"
