@@ -10,6 +10,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - 1-10 rating scale (was 1-5): ten-star UI (`MAX_RATING = 10`),
   `PUT /api/rating` validates 0-10. Trakt imports keep their native 1-10
   values; Goodreads 1-5 ratings are doubled on import.
+- Unified "History" page (nav, right of Home): one poster panel per viewing
+  across all media types (movies, TV, games, books, audiobooks), most recent
+  first. Local title search plus filters by media type, viewing year, genre
+  and rated/unrated. Backed by new `GET /api/seen/history` (paginated, one
+  entry per `seen` row with episode details).
 
 ### Changed
 - Existing ratings are doubled by migration `20261004000000_ratingScaleToTen`
