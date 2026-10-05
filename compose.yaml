@@ -1,0 +1,14 @@
+services:
+  mediatracker:
+    container_name: MediaTracker
+    ports:
+      - 7481:7481
+    volumes:
+      - ${HOME}/.config/mediatracker:/storage
+      - assetsVolume:/assets
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: mediatracker-plus:local
+volumes:
+  assetsVolume: null
