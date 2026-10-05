@@ -55,6 +55,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Star rating supports drag-to-rate with a zero zone (drag left of or below
   the stars to clear the vote), on mouse and touch; clicking the current
   value also clears it.
+- Cleared (NULL) and zero votes count as unrated again in the Rated/Unrated
+  filters, same as never-rated items, on the History page and everywhere
+  else.
 
 ## [0.2.1] - 2026-04-06
 
