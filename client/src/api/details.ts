@@ -103,6 +103,7 @@ export const setRating = async (
   });
 
   await updateMediaItem(mediaItem);
+  queryClient.invalidateQueries(['seenHistory']);
   queryClient.setQueriesData(['listItems'], (items: ListItemsResponse) => {
     return items.map((item) => {
       if (item.mediaItem.id === mediaItem.id) {
