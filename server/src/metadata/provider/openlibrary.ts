@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { MediaItemForProvider } from 'src/entity/mediaItem';
 import { MetadataProvider } from 'src/metadata/metadataProvider';
+import { normalizeGenres } from 'src/metadata/genreNormalization';
 
 export class OpenLibrary extends MetadataProvider {
   readonly name = 'openlibrary';
@@ -24,6 +25,7 @@ export class OpenLibrary extends MetadataProvider {
           'edition_count',
           'cover_i',
           'author_name',
+          'subject',
         ].join(','),
         type: 'work',
         limit: 20,
@@ -43,6 +45,7 @@ export class OpenLibrary extends MetadataProvider {
         numberOfPages: doc.number_of_pages_median,
         authors: doc.author_name,
         openlibraryId: doc.key,
+        genres: normalizeGenres(doc.subject),
       };
     });
   }
@@ -70,6 +73,7 @@ export class OpenLibrary extends MetadataProvider {
           ? `https://covers.openlibrary.org/b/id/${res.data.covers[0]}.jpg`
           : args.externalPosterUrl,
       numberOfPages: args.numberOfPages,
+      genres: normalizeGenres(res.data.subjects),
     };
   }
 }
