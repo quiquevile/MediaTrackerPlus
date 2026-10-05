@@ -1773,5 +1773,56 @@ describe('migrations', () => {
     expect(updatedSeason.posterId).toEqual('poster-2');
   });
 
+  test('20261005000000_openlibraryNeedsDetails', async () => {
+    await Database.knex('mediaItem').insert([
+      {
+        id: 777001,
+        title: 'book without flag',
+        source: 'openlibrary',
+        mediaType: 'book',
+      },
+      {
+        id: 777002,
+        title: 'book already flagged',
+        source: 'openlibrary',
+        mediaType: 'book',
+        needsDetails: true,
+      },
+      {
+        id: 777003,
+        title: 'movie without flag',
+        source: 'tmdb',
+        mediaType: 'movie',
+      },
+    ]);
+
+    await Database.knex.migrate.up({
+      name: `20261005000000_openlibraryNeedsDetails.${Config.MIGRATIONS_EXTENSION}`,
+      directory: Config.MIGRATIONS_DIRECTORY,
+    });
+
+    await Database.knex.migrate.down({
+      directory: Config.MIGRATIONS_DIRECTORY,
+    });
+
+    await Database.knex.migrate.up({
+      name: `20261005000000_openlibraryNeedsDetails.${Config.MIGRATIONS_EXTENSION}`,
+      directory: Config.MIGRATIONS_DIRECTORY,
+    });
+
+    expect(
+      (await Database.knex('mediaItem').where('id', 777001).first())
+        .needsDetails
+    ).toBeTruthy();
+    expect(
+      (await Database.knex('mediaItem').where('id', 777002).first())
+        .needsDetails
+    ).toBeTruthy();
+    expect(
+      (await Database.knex('mediaItem').where('id', 777003).first())
+        .needsDetails
+    ).toBeFalsy();
+  });
+
   afterAll(clearDatabase);
 });

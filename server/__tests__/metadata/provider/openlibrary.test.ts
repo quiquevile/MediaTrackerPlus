@@ -57,6 +57,7 @@ const searchResult = [
     authors: ['J. K. Rowling'],
     openlibraryId: '/works/OL82563W',
     genres: ['Fantasy', 'Family'],
+    needsDetails: true,
   },
   {
     mediaType: 'book',
@@ -68,6 +69,7 @@ const searchResult = [
     authors: ['J. K. Rowling'],
     openlibraryId: '/works/OL82586W',
     genres: [],
+    needsDetails: true,
   },
   {
     mediaType: 'book',
@@ -79,6 +81,7 @@ const searchResult = [
     authors: ['J. K. Rowling'],
     openlibraryId: '/works/OL82537W',
     genres: [],
+    needsDetails: true,
   },
   {
     mediaType: 'book',
@@ -90,6 +93,7 @@ const searchResult = [
     authors: ['J. K. Rowling'],
     openlibraryId: '/works/OL82565W',
     genres: [],
+    needsDetails: true,
   },
 ];
 
@@ -115,6 +119,7 @@ const detailsResult = {
   numberOfPages: 123,
   externalPosterUrl: 'poster',
   genres: ['Horror', 'Fantasy', 'Family', 'Drama', 'Action'],
+  needsDetails: false,
 } as unknown;
 
 const detailsResult2 = {
@@ -127,4 +132,5 @@ const detailsResult2 = {
   numberOfPages: undefined,
   externalPosterUrl: 'https://covers.openlibrary.org/b/id/5732360.jpg',
   genres: [],
+  needsDetails: false,
 } as unknown;

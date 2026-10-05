@@ -46,6 +46,7 @@ export class OpenLibrary extends MetadataProvider {
         authors: doc.author_name,
         openlibraryId: doc.key,
         genres: normalizeGenres(doc.subject),
+        needsDetails: true,
       };
     });
   }
@@ -74,6 +75,7 @@ export class OpenLibrary extends MetadataProvider {
           : args.externalPosterUrl,
       numberOfPages: args.numberOfPages,
       genres: normalizeGenres(res.data.subjects),
+      needsDetails: false,
     };
   }
 }
