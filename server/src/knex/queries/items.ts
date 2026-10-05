@@ -424,12 +424,16 @@ const getItemsKnexSql = async (args: GetItemsArgs & { year: string }) => {
         .andWhere('unseenEpisodesCount', '>', 0);
     }
 
+    // Rated means an actual vote: cleared (NULL) and zero ratings count
+    // as unrated, same as never-rated items.
     if (onlyWithUserRating === true) {
-      query.whereNotNull('userRating.rating');
+      query.where('userRating.rating', '>', 0);
     }
 
     if (onlyWithoutUserRating === true) {
-      query.whereNull('userRating.rating');
+      query.where((qb) =>
+        qb.whereNull('userRating.rating').orWhere('userRating.rating', '<=', 0)
+      );
     }
 
     if (onlyWithProgress) {

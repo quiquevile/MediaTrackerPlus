@@ -246,6 +246,12 @@ describe('listItemController', () => {
     await Database.knex('userRating').insert(Data.user_rating);
     await Database.knex('seen').insert(Data.movie_ranked_seen);
 
+    // Cleared (NULL) and zero votes count as unrated, not rated.
+    await Database.knex('userRating').insert([
+      { ...Data.user_rating, id: 101, mediaItemId: 1, rating: null },
+      { ...Data.user_rating, id: 102, mediaItemId: 2, rating: 0 },
+    ]);
+
     const res = await request(itemsController.getPaginated, {
       userId: Data.user.id,
       requestQuery: {
@@ -274,6 +280,12 @@ describe('listItemController', () => {
     await Database.knex('mediaItem').insert(Data.movie_ranked);
     await Database.knex('userRating').insert(Data.user_rating);
     await Database.knex('seen').insert(Data.movie_ranked_seen);
+
+    // Cleared (NULL) and zero votes count as unrated, not rated.
+    await Database.knex('userRating').insert([
+      { ...Data.user_rating, id: 101, mediaItemId: 1, rating: null },
+      { ...Data.user_rating, id: 102, mediaItemId: 2, rating: 0 },
+    ]);
 
     const res = await request(itemsController.getPaginated, {
       userId: Data.user.id,

@@ -39,6 +39,20 @@ const ratings: UserRating[] = [
     rating: 9,
     date: d('2024-01-16'),
   },
+  // Cleared vote: row kept with NULL rating.
+  {
+    userId: 0,
+    mediaItemId: Data.book.id,
+    rating: null,
+    date: d('2024-02-01'),
+  },
+  // Zero vote on the show (item level).
+  {
+    userId: 0,
+    mediaItemId: 1,
+    rating: 0,
+    date: d('2024-02-02'),
+  },
 ];
 
 describe('seen history', () => {
@@ -175,6 +189,25 @@ describe('seen history', () => {
       onlyWithoutUserRating: true,
     });
     expect(unrated.data.map((e) => e.id).sort()).toEqual([4, 5]);
+  });
+
+  test('cleared and zero votes count as unrated', async () => {
+    // Fixtures: book entry (id 5) has a NULL rating row, show entries have
+    // an item-level zero rating but no episode ratings.
+    const rated = await seenRepository.history({
+      userId: 0,
+      onlyWithUserRating: true,
+    });
+    expect(rated.data.map((e) => e.id).sort()).toEqual([1, 2, 3]);
+
+    const unrated = await seenRepository.history({
+      userId: 0,
+      onlyWithoutUserRating: true,
+    });
+    expect(unrated.data.map((e) => e.id).sort()).toEqual([4, 5]);
+
+    const bookEntry = unrated.data.find((e) => e.id === 5);
+    expect(bookEntry.mediaItem.userRating.rating).toBeNull();
   });
 
   test('order by title', async () => {

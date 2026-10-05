@@ -86,12 +86,15 @@ const applyFilters = (query: Knex.QueryBuilder, args: GetSeenHistoryArgs) => {
   }
 
   if (onlyWithUserRating || onlyWithoutUserRating) {
+    // Rated means an actual vote: cleared (NULL) and zero ratings count
+    // as unrated, same as never-rated entries.
     const ratingExists = (qb: Knex.QueryBuilder) =>
       qb
         .select('id')
         .from('userRating')
         .where('userRating.userId', userId)
         .whereRaw('"userRating"."mediaItemId" = "seen"."mediaItemId"')
+        .where('userRating.rating', '>', 0)
         .andWhere((builder: Knex.QueryBuilder) =>
           builder
             .whereRaw(
