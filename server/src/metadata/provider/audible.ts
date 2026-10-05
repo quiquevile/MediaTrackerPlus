@@ -4,6 +4,11 @@ import { AudibleCountryCode } from 'src/entity/configuration';
 import { MediaItemForProvider, ExternalIds } from 'src/entity/mediaItem';
 import { MetadataProvider } from 'src/metadata/metadataProvider';
 import { GlobalConfiguration } from 'src/repository/globalSettings';
+import {
+  mergeGenres,
+  normalizeCategoryLadders,
+  normalizeGenres,
+} from 'src/metadata/genreNormalization';
 
 export class Audible extends MetadataProvider {
   readonly name = 'audible';
@@ -35,9 +40,13 @@ export class Audible extends MetadataProvider {
   }
 
   private readonly queryParams = {
-    response_groups: ['contributors', 'rating', 'media', 'product_attrs'].join(
-      ','
-    ),
+    response_groups: [
+      'contributors',
+      'rating',
+      'media',
+      'product_attrs',
+      'category_ladders',
+    ].join(','),
     image_sizes: [500, 1000, 2400].join(','),
   };
 
@@ -137,6 +146,10 @@ export class Audible extends MetadataProvider {
       releaseDate: item.release_date,
       runtime: item.runtime_length_min,
       overview: item.merchandising_summary,
+      genres: mergeGenres(
+        normalizeCategoryLadders(item.category_ladders),
+        normalizeGenres(item.thesaurus_subject_keywords)
+      ),
     };
   }
 }
@@ -214,6 +227,16 @@ namespace AudibleResponse {
     url: string;
   }
 
+  export interface CategoryLadderStep {
+    id: string;
+    name: string;
+  }
+
+  export interface CategoryLadder {
+    ladder: CategoryLadderStep[];
+    root: string;
+  }
+
   export interface SocialMediaImages {
     facebook: string;
     twitter: string;
@@ -223,6 +246,7 @@ namespace AudibleResponse {
     asin: string;
     authors: Author[];
     available_codecs: AvailableCodec[];
+    category_ladders?: CategoryLadder[];
     content_delivery_type: string;
     content_type: string;
     format_type: string;

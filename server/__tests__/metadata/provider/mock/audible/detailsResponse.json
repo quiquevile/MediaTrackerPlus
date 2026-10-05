@@ -1,6 +1,38 @@
 {
     "product": {
         "asin": "B017V4IM1G",
+        "category_ladders": [
+            {
+                "ladder": [
+                    {
+                        "id": "1",
+                        "name": "Science Fiction & Fantasy"
+                    },
+                    {
+                        "id": "2",
+                        "name": "Fantasy"
+                    },
+                    {
+                        "id": "3",
+                        "name": "Epic"
+                    }
+                ],
+                "root": "Genres"
+            },
+            {
+                "ladder": [
+                    {
+                        "id": "4",
+                        "name": "Literature & Fiction"
+                    },
+                    {
+                        "id": "5",
+                        "name": "Classics"
+                    }
+                ],
+                "root": "Genres"
+            }
+        ],
         "authors": [
             {
                 "asin": "B000AP9A6K",
