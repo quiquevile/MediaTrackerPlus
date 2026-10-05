@@ -39,6 +39,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Working docker `HEALTHCHECK`: probes
   `http://127.0.0.1:${PORT:-7481}/api/configuration` (unauthenticated,
   lightweight endpoint) instead of the broken `curl ${HOSTNAME}:${PORT}`.
+- Newly added books now fetch their full metadata (overview, full release
+  date, genres) automatically when opening the details page
+  (`needsDetails` flag, same as TMDB items), instead of requiring the manual
+  update button. Existing OpenLibrary books are flagged by migration
+  `20261005000000_openlibraryNeedsDetails`.
 
 ## [0.2.1] - 2026-04-06
 
