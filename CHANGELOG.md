@@ -19,6 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - History year/genre filters are multi-selects preloaded with the existing
   values (`GET /api/seen/history/facets`), OR-combined within each filter.
   Separate "Seen year" (viewing date) and "Year" (release date) filters.
+  Media types are toggle switches, OR-combined (`mediaTypes` param).
 
 ### Changed
 - Existing ratings are doubled by migration `20261004000000_ratingScaleToTen`
