@@ -55,7 +55,7 @@ ENV PGID=1000
 RUN groupadd --non-unique --gid 1000 abc
 RUN useradd --non-unique --create-home --uid 1000 --gid abc abc
 
-HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 CMD curl -f http://127.0.0.1:${PORT:-7481}/api/configuration || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 CMD curl -f http://${HOSTNAME:-127.0.0.1}:${PORT:-7481}/api/configuration || exit 1
 
 ENV DATABASE_PATH="/storage/data.db"
 ENV ASSETS_PATH="/assets"
