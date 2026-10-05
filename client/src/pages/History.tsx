@@ -1,5 +1,4 @@
 import React, { FormEventHandler, FunctionComponent, useState } from 'react';
-import clsx from 'clsx';
 import { t, Trans } from '@lingui/macro';
 
 import { MediaType } from 'mediatracker-api';
@@ -7,9 +6,9 @@ import { useSeenHistory, useSeenHistoryFacets } from 'src/api/history';
 import { HistoryPanel } from 'src/components/HistoryPanel';
 import { MultiSelect } from 'src/components/MultiSelect';
 import { Pagination } from 'src/components/PaginatedGridItems';
+import { Toggle } from 'src/components/Toggle';
 
-const mediaTypes: { value?: MediaType; label: string }[] = [
-  { value: undefined, label: t`All` },
+const mediaTypes: { value: MediaType; label: string }[] = [
   { value: 'movie', label: t`Movies` },
   { value: 'tv', label: t`Tv` },
   { value: 'video_game', label: t`Games` },
@@ -21,7 +20,7 @@ type RatedFilter = 'all' | 'rated' | 'unrated';
 
 export const HistoryPage: FunctionComponent = () => {
   const [page, setPage] = useState<number>(1);
-  const [mediaType, setMediaType] = useState<MediaType | undefined>(undefined);
+  const [activeMediaTypes, setActiveMediaTypes] = useState<MediaType[]>([]);
   const [viewedYears, setViewedYears] = useState<string[]>([]);
   const [releaseYears, setReleaseYears] = useState<string[]>([]);
   const [genres, setGenres] = useState<string[]>([]);
@@ -45,7 +44,7 @@ export const HistoryPage: FunctionComponent = () => {
   };
 
   const onClearFilters = () => {
-    setMediaType(undefined);
+    setActiveMediaTypes([]);
     setViewedYears([]);
     setReleaseYears([]);
     setGenres([]);
@@ -57,10 +56,21 @@ export const HistoryPage: FunctionComponent = () => {
     resetPage();
   };
 
+  const toggleMediaType = (value: MediaType, checked: boolean) => {
+    if (checked) {
+      setActiveMediaTypes([...activeMediaTypes, value]);
+    } else {
+      setActiveMediaTypes(activeMediaTypes.filter((item) => item !== value));
+    }
+
+    resetPage();
+  };
+
   const { entries, isLoading, numberOfPages, numberOfItemsTotal } =
     useSeenHistory({
       page: page,
-      mediaType: mediaType,
+      mediaTypes:
+        activeMediaTypes.length > 0 ? activeMediaTypes.join(',') : undefined,
       viewedYears: viewedYears.length > 0 ? viewedYears.join(',') : undefined,
       releaseYears:
         releaseYears.length > 0 ? releaseYears.join(',') : undefined,
@@ -110,21 +120,12 @@ export const HistoryPage: FunctionComponent = () => {
 
             <div className="flex flex-wrap items-center gap-2 mb-2">
               {mediaTypes.map((type) => (
-                <button
-                  key={type.label}
-                  onClick={() => {
-                    setMediaType(type.value);
-                    resetPage();
-                  }}
-                  className={clsx(
-                    'px-2 py-1 rounded cursor-pointer select-none',
-                    mediaType === type.value
-                      ? 'bg-blue-500 text-white'
-                      : 'bg-red-500'
-                  )}
-                >
-                  {type.label}
-                </button>
+                <Toggle
+                  key={type.value}
+                  label={type.label}
+                  checked={activeMediaTypes.includes(type.value)}
+                  onChange={(checked) => toggleMediaType(type.value, checked)}
+                />
               ))}
             </div>
 
