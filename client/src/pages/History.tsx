@@ -1,9 +1,9 @@
 import React, { FormEventHandler, FunctionComponent, useState } from 'react';
 import { t, Trans } from '@lingui/macro';
 
-import { MediaType } from 'mediatracker-api';
+import { MediaType, MediaItemItemsResponse, TvEpisode } from 'mediatracker-api';
 import { useSeenHistory, useSeenHistoryFacets } from 'src/api/history';
-import { HistoryPanel } from 'src/components/HistoryPanel';
+import { GridItem } from 'src/components/GridItem';
 import { MultiSelect } from 'src/components/MultiSelect';
 import { Pagination } from 'src/components/PaginatedGridItems';
 import { Toggle } from 'src/components/Toggle';
@@ -216,7 +216,25 @@ export const HistoryPage: FunctionComponent = () => {
                 </div>
               ) : (
                 entries?.map((entry) => (
-                  <HistoryPanel key={entry.id} entry={entry} />
+                  <GridItem
+                    key={entry.id}
+                    mediaItem={
+                      entry.mediaItem as unknown as MediaItemItemsResponse
+                    }
+                    episode={
+                      entry.episode
+                        ? (entry.episode as unknown as TvEpisode)
+                        : undefined
+                    }
+                    appearance={{
+                      showRating: true,
+                      showLastSeenAt: true,
+                      topBar: {
+                        showFirstUnwatchedEpisodeBadge: true,
+                        showUnwatchedEpisodesCount: true,
+                      },
+                    }}
+                  />
                 ))
               )}
 
