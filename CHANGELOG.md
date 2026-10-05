@@ -28,6 +28,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Changed
 - Existing ratings are doubled by migration `20261004000000_ratingScaleToTen`
   (a 4 becomes an 8). Reversible with `down` (halves them back).
+- Docker workflow is now fully local: `compose.yaml` builds
+  `mediatracker-plus:local` from source (no remote image). The Dockerfile no
+  longer compiles libvips from source; sharp's prebuilt binaries are used.
 
 ### Removed
 - Tracked docker image export `mtp01.tar` (81 MB `docker save` artifact). Docker

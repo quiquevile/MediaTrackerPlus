@@ -7,7 +7,9 @@ tracking.
 ## Changes vs upstream
 
 - Removed the tracked `mtp01.tar` docker image export from the repo.
-- `docker-compose.yaml` uses `dnlwttnbrg/mediatracker-plus:latest`.
+- Local-only docker workflow (`compose.yaml`): builds `mediatracker-plus:local`
+  from this source tree (no remote image). Sharp uses its prebuilt libvips
+  binaries, so no libvips compilation is needed.
 - Working docker `HEALTHCHECK` against the local `/api/configuration` endpoint.
 - 1-10 rating scale (existing ratings are doubled on upgrade).
 - Unified "History" page: every viewing (all media types) as poster panels,
@@ -16,6 +18,19 @@ tracking.
 
 See [CHANGELOG.md](CHANGELOG.md) for details. Everything below is the
 original upstream README, kept unaltered.
+
+## Docker (local build)
+
+Build and run the image from this source tree (no remote image involved).
+On Raspberry Pi this builds the native arm64 image:
+
+```bash
+docker compose build
+docker compose up -d
+```
+
+Data lives in `${HOME}/.config/mediatracker` (`/storage` in the container),
+posters in the `assetsVolume` volume. The app listens on port 7481.
 
 ---
 
