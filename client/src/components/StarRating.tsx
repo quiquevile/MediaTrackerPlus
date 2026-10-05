@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useState } from 'react';
+import React, { FunctionComponent, useRef, useState } from 'react';
 import clsx from 'clsx';
 import { Trans } from '@lingui/macro';
 
@@ -10,9 +10,6 @@ import { formatEpisodeNumber, formatSeasonNumber } from 'src/utils';
 import { queryClient } from 'src/App';
 
 const STARS = 5;
-
-const valueForStar = (index: number, firstHalf: boolean): number =>
-  index * 2 + (firstHalf ? 1 : 2);
 
 const iconForStar = (
   shown: number | undefined,
@@ -34,24 +31,71 @@ const iconForStar = (
 const StarsInput: FunctionComponent<{
   rating?: number;
   sizeClass?: string;
-  onSelect: (value: number) => void;
+  onSelect: (value: number | null) => void;
 }> = (props) => {
   const { rating, sizeClass, onSelect } = props;
-  const [hoverValue, setHoverValue] = useState<number | null>(null);
+  const [previewValue, setPreviewValue] = useState<number | null>(null);
+  const [dragging, setDragging] = useState(false);
+  const rowRef = useRef<HTMLSpanElement>(null);
 
-  const shown = hoverValue ?? rating;
+  // 0 when left of the row or below it (clear zone), else 1..10 by halves.
+  const valueFromPosition = (clientX: number, clientY: number): number => {
+    const rect = rowRef.current?.getBoundingClientRect();
+
+    if (!rect) {
+      return 0;
+    }
+
+    if (clientX < rect.left || clientY > rect.bottom + 8) {
+      return 0;
+    }
+
+    return Math.min(
+      STARS * 2,
+      Math.max(0, Math.ceil(((clientX - rect.left) / rect.width) * STARS * 2))
+    );
+  };
+
+  const shown = previewValue ?? rating;
 
   return (
-    <span className="flex cursor-pointer w-min">
+    <span
+      ref={rowRef}
+      className="flex cursor-pointer w-min touch-none select-none"
+      onPointerDown={(e) => {
+        e.preventDefault();
+        e.currentTarget.setPointerCapture(e.pointerId);
+        setDragging(true);
+        setPreviewValue(valueFromPosition(e.clientX, e.clientY));
+      }}
+      onPointerMove={(e) => {
+        if (dragging || e.buttons === 0) {
+          setPreviewValue(valueFromPosition(e.clientX, e.clientY));
+        }
+      }}
+      onPointerUp={(e) => {
+        if (dragging) {
+          const value = valueFromPosition(e.clientX, e.clientY);
+          setDragging(false);
+          setPreviewValue(null);
+          onSelect(value === 0 ? null : value);
+        }
+      }}
+      onPointerCancel={() => {
+        setDragging(false);
+        setPreviewValue(null);
+      }}
+      onPointerLeave={() => {
+        if (!dragging) {
+          setPreviewValue(null);
+        }
+      }}
+    >
       {new Array(STARS).fill(null).map((value, index) => {
         const icon = iconForStar(shown, index);
 
         return (
-          <span
-            key={index}
-            className="relative"
-            onPointerLeave={() => setHoverValue(null)}
-          >
+          <span key={index} className="relative">
             <span
               className={clsx(
                 'material-icons hover:text-yellow-400 select-none',
@@ -63,24 +107,6 @@ const StarsInput: FunctionComponent<{
             >
               {icon}
             </span>
-
-            <span
-              className="absolute inset-y-0 left-0 w-1/2"
-              onClick={(e) => {
-                e.preventDefault();
-                onSelect(valueForStar(index, true));
-              }}
-              onPointerEnter={() => setHoverValue(valueForStar(index, true))}
-            />
-
-            <span
-              className="absolute inset-y-0 right-0 w-1/2"
-              onClick={(e) => {
-                e.preventDefault();
-                onSelect(valueForStar(index, false));
-              }}
-              onPointerEnter={() => setHoverValue(valueForStar(index, false))}
-            />
           </span>
         );
       })}
@@ -104,7 +130,7 @@ export const StarRating: FunctionComponent<
     ? season.userRating?.rating
     : mediaItem.userRating?.rating;
 
-  const _setRating = (value: number) =>
+  const _setRating = (value?: number) =>
     setRating({
       mediaItem: mediaItem,
       season: season,
@@ -112,7 +138,18 @@ export const StarRating: FunctionComponent<
       rating: value,
     });
 
-  return <StarsInput rating={rating} onSelect={_setRating} />;
+  return (
+    <StarsInput
+      rating={rating}
+      onSelect={(value) => {
+        if (value === null || value === rating) {
+          _setRating(null);
+        } else {
+          _setRating(value);
+        }
+      }}
+    />
+  );
 };
 
 const StarRatingModal: FunctionComponent<
@@ -169,7 +206,7 @@ const StarRatingModal: FunctionComponent<
           rating={rating}
           sizeClass="text-2xl"
           onSelect={(value) => {
-            if (value === rating) {
+            if (value === null || value === rating) {
               onSetRating(null);
             } else {
               onSetRating(value);
