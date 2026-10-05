@@ -12,6 +12,7 @@ tracking.
 - 1-10 rating scale (existing ratings are doubled on upgrade).
 - Unified "History" page: every viewing (all media types) as poster panels,
   most recent first, with local search and type/year/genre filters.
+- Normalized genres for books (OpenLibrary) and audiobooks (Audible).
 
 See [CHANGELOG.md](CHANGELOG.md) for details. Everything below is the
 original upstream README, kept unaltered.

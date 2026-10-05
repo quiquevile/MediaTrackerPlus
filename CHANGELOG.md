@@ -20,6 +20,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   values (`GET /api/seen/history/facets`), OR-combined within each filter.
   Separate "Seen year" (viewing date) and "Year" (release date) filters.
   Media types are toggle switches, OR-combined (`mediaTypes` param).
+- Books and audiobooks now get normalized genres (OpenLibrary subjects and
+  Audible category ladders mapped to TMDB-style canonical genres, max 5 per
+  item), so the genre filter works across all media types. Existing items
+  pick them up on the next metadata refresh.
 
 ### Changed
 - Existing ratings are doubled by migration `20261004000000_ratingScaleToTen`
