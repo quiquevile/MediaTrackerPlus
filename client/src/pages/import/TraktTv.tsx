@@ -1,6 +1,6 @@
 import React, { FunctionComponent, useEffect, useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
-import { useSpring, animated } from 'react-spring';
+import { useSpring, animated } from '@react-spring/web';
 import { Plural, t, Trans } from '@lingui/macro';
 
 import { mediaTrackerApi } from 'src/api/api';
