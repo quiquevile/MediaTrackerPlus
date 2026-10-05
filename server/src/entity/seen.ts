@@ -51,7 +51,7 @@ export type SeenHistoryEntry = {
 
 export type GetSeenHistoryArgs = {
   userId: number;
-  mediaType?: string;
+  mediaTypes?: string;
   viewedYears?: string;
   releaseYears?: string;
   genres?: string;

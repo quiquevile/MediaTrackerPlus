@@ -70,13 +70,22 @@ describe('seen history', () => {
   test('filter by media type', async () => {
     const res = await seenRepository.history({
       userId: 0,
-      mediaType: 'movie',
+      mediaTypes: 'movie',
     });
 
     expect(res.total).toEqual(2);
     expect(
       res.data.every((e) => e.mediaItem.mediaType === 'movie')
     ).toEqual(true);
+  });
+
+  test('filter by multiple media types (OR)', async () => {
+    const res = await seenRepository.history({
+      userId: 0,
+      mediaTypes: 'movie, book',
+    });
+
+    expect(res.data.map((e) => e.id).sort()).toEqual([1, 2, 5]);
   });
 
   test('filter by viewing year', async () => {

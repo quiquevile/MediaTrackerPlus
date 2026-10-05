@@ -1766,7 +1766,7 @@
         "operationId": "history",
         "parameters": [
           {
-            "name": "mediaType",
+            "name": "mediaTypes",
             "in": "query",
             "required": false,
             "schema": {

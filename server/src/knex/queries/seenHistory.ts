@@ -20,7 +20,7 @@ const splitList = (value?: string): string[] =>
 const applyFilters = (query: Knex.QueryBuilder, args: GetSeenHistoryArgs) => {
   const {
     userId,
-    mediaType,
+    mediaTypes,
     viewedYears,
     releaseYears,
     genres,
@@ -31,8 +31,10 @@ const applyFilters = (query: Knex.QueryBuilder, args: GetSeenHistoryArgs) => {
 
   query.where('seen.userId', userId);
 
-  if (mediaType) {
-    query.andWhere('mediaItem.mediaType', mediaType);
+  const mediaTypeValues = splitList(mediaTypes);
+
+  if (mediaTypeValues.length > 0) {
+    query.whereIn('mediaItem.mediaType', mediaTypeValues);
   }
 
   const genreValues = splitList(genres);

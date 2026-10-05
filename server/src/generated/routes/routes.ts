@@ -913,7 +913,7 @@ router.get(
       $schema: 'http://json-schema.org/draft-07/schema#',
       type: 'object',
       properties: {
-        mediaType: { type: ['string', 'null'] },
+        mediaTypes: { type: ['string', 'null'] },
         viewedYears: { type: ['string', 'null'] },
         releaseYears: { type: ['string', 'null'] },
         genres: { type: ['string', 'null'] },
