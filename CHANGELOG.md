@@ -11,11 +11,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   (`StarRating`/`StarRatingModal`), `PUT /api/rating` validates 0-10.
   Trakt imports keep their native 1-10 values; Goodreads 1-5 ratings are
   doubled on import.
-- Unified "History" page (nav, right of Home): one poster panel per viewing
+- Unified "History" page (nav, right of Home): one panel per viewing
   across all media types (movies, TV, games, books, audiobooks), most recent
-  first. Local title search plus filters by media type, viewing year, genre
-  and rated/unrated. Backed by new `GET /api/seen/history` (paginated, one
-  entry per `seen` row with episode details).
+  first, reusing the standard grid item (dimmed star when unrated,
+  first-unwatched-episode and unwatched-count badges for shows, episode
+  rating modal). Local title search plus filters by media type toggles,
+  viewing/released year, genre and rated/unrated. Backed by new
+  `GET /api/seen/history` (paginated, one entry per `seen` row with episode
+  details).
 - History year/genre filters are multi-selects preloaded with the existing
   values (`GET /api/seen/history/facets`), OR-combined within each filter.
   Separate "Seen year" (viewing date) and "Year" (release date) filters.
