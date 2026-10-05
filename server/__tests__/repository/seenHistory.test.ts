@@ -52,9 +52,16 @@ describe('seen history', () => {
     await Database.knex('episode').insert([
       Data.episode as TvEpisode,
       Data.episode2 as TvEpisode,
+      Data.episode3 as TvEpisode,
     ]);
     await Database.knex('seen').insert(seenRows);
     await Database.knex('userRating').insert(ratings);
+    await Database.knex('list').insert(Data.watchlist);
+    await Database.knex('listItem').insert({
+      listId: Data.watchlist.id,
+      mediaItemId: Data.movie.id,
+      addedAt: new Date().getTime(),
+    });
   });
 
   test('default: all entries, most recent first, undated last', async () => {
@@ -204,5 +211,45 @@ describe('seen history', () => {
     const facets = await seenRepository.historyFacets(999);
 
     expect(facets).toEqual({ viewedYears: [], releaseYears: [], genres: [] });
+  });
+
+  test('episode entries carry GridItem data', async () => {
+    const res = await seenRepository.history({ userId: 0 });
+
+    const entry = res.data.find((e) => e.id === 3);
+
+    expect(entry.episode).toMatchObject({
+      id: 1,
+      seasonNumber: 1,
+      episodeNumber: 1,
+      title: 'Episode 1',
+      tvShowId: 1,
+      seen: true,
+    });
+    expect(entry.episode.lastSeenAt).toEqual(entry.date);
+    expect(entry.episode.userRating).toMatchObject({ rating: 9 });
+  });
+
+  test('show entries carry unwatched badges and watchlist state', async () => {
+    const res = await seenRepository.history({ userId: 0 });
+
+    const showEntry = res.data.find((e) => e.id === 3);
+
+    expect(showEntry.mediaItem.firstUnwatchedEpisode).toMatchObject({
+      seasonNumber: 1,
+      episodeNumber: 3,
+    });
+    expect(showEntry.mediaItem.unseenEpisodesCount).toEqual(1);
+    expect(showEntry.mediaItem.seen).toEqual(false);
+    expect(showEntry.mediaItem.onWatchlist).toEqual(false);
+
+    const movieEntry = res.data.find((e) => e.id === 2);
+
+    expect(movieEntry.mediaItem.userRating).toMatchObject({ rating: 8 });
+    expect(movieEntry.mediaItem.onWatchlist).toEqual(true);
+    expect(movieEntry.mediaItem.seen).toEqual(true);
+    expect(
+      movieEntry.mediaItem.firstUnwatchedEpisode
+    ).toBeUndefined();
   });
 });

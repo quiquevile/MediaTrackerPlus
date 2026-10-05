@@ -100,9 +100,6 @@ const applyFilters = (query: Knex.QueryBuilder, args: GetSeenHistoryArgs) => {
             .orWhereRaw(
               '"userRating"."episodeId" IS NOT NULL AND "userRating"."episodeId" = "seen"."episodeId"'
             )
-            .orWhereRaw(
-              '"userRating"."episodeId" IS NULL AND "seen"."episodeId" IS NOT NULL'
-            )
         );
 
     if (onlyWithUserRating) {
@@ -133,7 +130,30 @@ const mapRow = (row: any): SeenHistoryEntry => ({
     posterSmall: row['mediaItemPosterId']
       ? `/img/${row['mediaItemPosterId']}?size=small`
       : undefined,
-    userRating: row['userRatingRating'],
+    userRating: row['itemRating.id']
+      ? {
+          id: row['itemRating.id'],
+          date: row['itemRating.date'],
+          mediaItemId: row['mediaItemId'],
+          userId: row['itemRating.userId'],
+          rating: row['itemRating.rating'],
+          review: row['itemRating.review'],
+        }
+      : undefined,
+    firstUnwatchedEpisode: row['firstUnwatchedEpisode.id']
+      ? {
+          id: row['firstUnwatchedEpisode.id'],
+          seasonNumber: row['firstUnwatchedEpisode.seasonNumber'],
+          episodeNumber: row['firstUnwatchedEpisode.episodeNumber'],
+        }
+      : undefined,
+    unseenEpisodesCount: row['unseenEpisodesCount'] || 0,
+    onWatchlist: Boolean(row['listItem.id']),
+    seen:
+      row['mediaItemMediaType'] === 'tv'
+        ? row['numberOfEpisodes'] > 0 && !row['unseenEpisodesCount']
+        : true,
+    lastSeenAt: row['seenDate'],
   },
   episode: row['episodeId']
     ? {
@@ -141,6 +161,20 @@ const mapRow = (row: any): SeenHistoryEntry => ({
         seasonNumber: row['episodeSeasonNumber'],
         episodeNumber: row['episodeEpisodeNumber'],
         title: row['episodeTitle'],
+        tvShowId: row['mediaItemId'],
+        userRating: row['episodeRating.id']
+          ? {
+              id: row['episodeRating.id'],
+              date: row['episodeRating.date'],
+              mediaItemId: row['mediaItemId'],
+              userId: row['episodeRating.userId'],
+              rating: row['episodeRating.rating'],
+              review: row['episodeRating.review'],
+              episodeId: row['episodeId'],
+            }
+          : undefined,
+        seen: true,
+        lastSeenAt: row['seenDate'],
       }
     : undefined,
 });
@@ -159,6 +193,16 @@ export const getSeenHistoryKnex = async (
     throw new Error('Invalid page number');
   }
 
+  const currentDateString = new Date().toISOString();
+
+  const watchlist = await Database.knex('list')
+    .select('id')
+    .where('userId', args.userId)
+    .where('isWatchlist', true)
+    .first();
+
+  const watchlistId = watchlist?.id ?? -1;
+
   const baseQuery = () =>
     applyFilters(
       Database.knex
@@ -175,22 +219,101 @@ export const getSeenHistoryKnex = async (
           episodeSeasonNumber: 'episode.seasonNumber',
           episodeEpisodeNumber: 'episode.episodeNumber',
           episodeTitle: 'episode.title',
-          userRatingRating: Database.knex
-            .select(Database.knex.raw('MAX("rating")'))
-            .from('userRating')
-            .where('userRating.userId', args.userId)
-            .whereRaw('"userRating"."mediaItemId" = "seen"."mediaItemId"')
-            .andWhere((builder: Knex.QueryBuilder) =>
-              builder
-                .whereNull('userRating.episodeId')
-                .orWhereRaw(
-                  '"userRating"."episodeId" = "seen"."episodeId"'
-                )
-            ),
+          'itemRating.id': 'itemRating.id',
+          'itemRating.date': 'itemRating.date',
+          'itemRating.userId': 'itemRating.userId',
+          'itemRating.rating': 'itemRating.rating',
+          'itemRating.review': 'itemRating.review',
+          'episodeRating.id': 'episodeRating.id',
+          'episodeRating.date': 'episodeRating.date',
+          'episodeRating.userId': 'episodeRating.userId',
+          'episodeRating.rating': 'episodeRating.rating',
+          'episodeRating.review': 'episodeRating.review',
+          'firstUnwatchedEpisode.id': 'firstUnwatchedEpisode.id',
+          'firstUnwatchedEpisode.seasonNumber':
+            'firstUnwatchedEpisode.seasonNumber',
+          'firstUnwatchedEpisode.episodeNumber':
+            'firstUnwatchedEpisode.episodeNumber',
+          unseenEpisodesCount: 'unseenEpisodesCount',
+          numberOfEpisodes: 'numberOfEpisodes',
+          'listItem.id': 'listItem.id',
         })
         .from('seen')
         .join('mediaItem', 'mediaItem.id', 'seen.mediaItemId')
-        .leftJoin('episode', 'episode.id', 'seen.episodeId'),
+        .leftJoin('episode', 'episode.id', 'seen.episodeId')
+        .leftJoin('userRating as itemRating', function () {
+          this.onVal('itemRating.userId', args.userId)
+            .andOn('itemRating.mediaItemId', '=', 'seen.mediaItemId')
+            .andOnNull('itemRating.episodeId')
+            .andOnNull('itemRating.seasonId');
+        })
+        .leftJoin('userRating as episodeRating', function () {
+          this.onVal('episodeRating.userId', args.userId).andOn(
+            'episodeRating.episodeId',
+            '=',
+            'seen.episodeId'
+          );
+        })
+        .leftJoin('listItem', function () {
+          this.on('listItem.mediaItemId', '=', 'mediaItem.id')
+            .andOnNull('listItem.seasonId')
+            .andOnNull('listItem.episodeId')
+            .andOnVal('listItem.listId', watchlistId);
+        })
+        .leftJoin(
+          (qb: Knex.QueryBuilder) =>
+            qb
+              .from('episode')
+              .select('tvShowId')
+              .min('seasonAndEpisodeNumber', {
+                as: 'seasonAndEpisodeNumber',
+              })
+              .count('*', { as: 'unseenEpisodesCount' })
+              .leftJoin(
+                (qb: Knex.QueryBuilder) =>
+                  qb
+                    .from('seen')
+                    .where('userId', args.userId)
+                    .as('seen'),
+                'seen.episodeId',
+                'episode.id'
+              )
+              .whereNot('episode.isSpecialEpisode', true)
+              .whereNot('episode.releaseDate', '')
+              .whereNot('episode.releaseDate', null)
+              .where('episode.releaseDate', '<=', currentDateString)
+              .whereNull('seen.userId')
+              .groupBy('tvShowId')
+              .as('unseenEpisodesHelper'),
+          'unseenEpisodesHelper.tvShowId',
+          'mediaItem.id'
+        )
+        .leftJoin('episode as firstUnwatchedEpisode', function () {
+          this.on(
+            'firstUnwatchedEpisode.tvShowId',
+            '=',
+            'mediaItem.id'
+          ).andOn(
+            'firstUnwatchedEpisode.seasonAndEpisodeNumber',
+            '=',
+            'unseenEpisodesHelper.seasonAndEpisodeNumber'
+          );
+        })
+        .leftJoin(
+          (qb: Knex.QueryBuilder) =>
+            qb
+              .select('tvShowId')
+              .count('*', { as: 'numberOfEpisodes' })
+              .from('episode')
+              .whereNot('isSpecialEpisode', true)
+              .andWhereNot('releaseDate', '')
+              .andWhereNot('releaseDate', null)
+              .where('releaseDate', '<=', currentDateString)
+              .groupBy('tvShowId')
+              .as('numberOfEpisodes'),
+          'numberOfEpisodes.tvShowId',
+          'mediaItem.id'
+        ),
       args
     );
 

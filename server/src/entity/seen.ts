@@ -26,6 +26,8 @@ export class SeenFilters {
   };
 }
 
+import { UserRating } from 'src/entity/userRating';
+
 export type SeenHistoryOrderBy = 'date' | 'title';
 
 export type SeenHistoryEntry = {
@@ -39,13 +41,26 @@ export type SeenHistoryEntry = {
     genres?: string[];
     poster?: string;
     posterSmall?: string;
-    userRating?: number;
+    userRating?: UserRating;
+    firstUnwatchedEpisode?: {
+      id: number;
+      seasonNumber: number;
+      episodeNumber: number;
+    };
+    unseenEpisodesCount?: number;
+    onWatchlist?: boolean;
+    seen?: boolean;
+    lastSeenAt?: number;
   };
   episode?: {
     id: number;
     seasonNumber: number;
     episodeNumber: number;
     title: string;
+    tvShowId: number;
+    userRating?: UserRating;
+    seen?: boolean;
+    lastSeenAt?: number;
   };
 };
 

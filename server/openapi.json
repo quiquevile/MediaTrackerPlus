@@ -4668,6 +4668,46 @@
                 "nullable": true
               },
               "userRating": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UserRating"
+                  }
+                ],
+                "nullable": true
+              },
+              "firstUnwatchedEpisode": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "number"
+                  },
+                  "seasonNumber": {
+                    "type": "number"
+                  },
+                  "episodeNumber": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "episodeNumber",
+                  "id",
+                  "seasonNumber"
+                ],
+                "nullable": true
+              },
+              "unseenEpisodesCount": {
+                "type": "number",
+                "nullable": true
+              },
+              "onWatchlist": {
+                "type": "boolean",
+                "nullable": true
+              },
+              "seen": {
+                "type": "boolean",
+                "nullable": true
+              },
+              "lastSeenAt": {
                 "type": "number",
                 "nullable": true
               }
@@ -4692,13 +4732,33 @@
               },
               "title": {
                 "type": "string"
+              },
+              "tvShowId": {
+                "type": "number"
+              },
+              "userRating": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UserRating"
+                  }
+                ],
+                "nullable": true
+              },
+              "seen": {
+                "type": "boolean",
+                "nullable": true
+              },
+              "lastSeenAt": {
+                "type": "number",
+                "nullable": true
               }
             },
             "required": [
               "episodeNumber",
               "id",
               "seasonNumber",
-              "title"
+              "title",
+              "tvShowId"
             ],
             "nullable": true
           }
