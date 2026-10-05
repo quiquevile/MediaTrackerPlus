@@ -50,6 +50,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   (`needsDetails` flag, same as TMDB items), instead of requiring the manual
   update button. Existing OpenLibrary books are flagged by migration
   `20261005000000_openlibraryNeedsDetails`.
+- Voting from the History page now refreshes the list immediately (the
+  `seenHistory` query cache is invalidated on rating changes).
+- Star rating supports drag-to-rate with a zero zone (drag left of or below
+  the stars to clear the vote), on mouse and touch; clicking the current
+  value also clears it.
 
 ## [0.2.1] - 2026-04-06
 
