@@ -30,6 +30,13 @@ import { UserRating } from 'src/entity/userRating';
 
 export type SeenHistoryOrderBy = 'date' | 'title';
 
+export type SeenHistoryRatingFilter =
+  | 'rated'
+  | 'unrated'
+  | 'unrated-show'
+  | 'unrated-season'
+  | 'unrated-episode';
+
 export type SeenHistoryEntry = {
   id: number;
   date?: number;
@@ -58,9 +65,15 @@ export type SeenHistoryEntry = {
     episodeNumber: number;
     title: string;
     tvShowId: number;
+    seasonId?: number;
     userRating?: UserRating;
     seen?: boolean;
     lastSeenAt?: number;
+  };
+  season?: {
+    id: number;
+    seasonNumber: number;
+    userRating?: UserRating;
   };
 };
 
@@ -71,8 +84,7 @@ export type GetSeenHistoryArgs = {
   releaseYears?: string;
   genres?: string;
   filter?: string;
-  onlyWithUserRating?: boolean;
-  onlyWithoutUserRating?: boolean;
+  ratingFilter?: SeenHistoryRatingFilter;
   orderBy?: SeenHistoryOrderBy;
   sortOrder?: 'asc' | 'desc';
   page?: number;

@@ -1811,20 +1811,19 @@
             }
           },
           {
-            "name": "onlyWithUserRating",
+            "name": "ratingFilter",
             "in": "query",
             "required": false,
             "schema": {
-              "type": "boolean",
-              "nullable": true
-            }
-          },
-          {
-            "name": "onlyWithoutUserRating",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "boolean",
+              "enum": [
+                "rated",
+                "unrated",
+                "unrated-episode",
+                "unrated-season",
+                "unrated-show",
+                null
+              ],
+              "type": "string",
               "nullable": true
             }
           },
@@ -4736,6 +4735,10 @@
               "tvShowId": {
                 "type": "number"
               },
+              "seasonId": {
+                "type": "number",
+                "nullable": true
+              },
               "userRating": {
                 "allOf": [
                   {
@@ -4759,6 +4762,30 @@
               "seasonNumber",
               "title",
               "tvShowId"
+            ],
+            "nullable": true
+          },
+          "season": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "number"
+              },
+              "seasonNumber": {
+                "type": "number"
+              },
+              "userRating": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UserRating"
+                  }
+                ],
+                "nullable": true
+              }
+            },
+            "required": [
+              "id",
+              "seasonNumber"
             ],
             "nullable": true
           }

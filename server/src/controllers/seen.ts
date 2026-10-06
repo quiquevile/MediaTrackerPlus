@@ -378,8 +378,12 @@ export class SeenController {
       releaseYears?: string;
       genres?: string;
       filter?: string;
-      onlyWithUserRating?: boolean;
-      onlyWithoutUserRating?: boolean;
+      ratingFilter?:
+        | 'rated'
+        | 'unrated'
+        | 'unrated-show'
+        | 'unrated-season'
+        | 'unrated-episode';
       orderBy?: 'date' | 'title';
       sortOrder?: 'asc' | 'desc';
       page?: number;
@@ -394,8 +398,7 @@ export class SeenController {
       releaseYears,
       genres,
       filter,
-      onlyWithUserRating,
-      onlyWithoutUserRating,
+      ratingFilter,
       page,
     } = req.query;
 
@@ -407,6 +410,20 @@ export class SeenController {
       return;
     }
 
+    if (
+      ratingFilter !== undefined &&
+      ![
+        'rated',
+        'unrated',
+        'unrated-show',
+        'unrated-season',
+        'unrated-episode',
+      ].includes(ratingFilter)
+    ) {
+      res.status(400);
+      return;
+    }
+
     const result = await seenRepository.history({
       userId: userId,
       mediaTypes: mediaTypes,
@@ -414,8 +431,7 @@ export class SeenController {
       releaseYears: releaseYears,
       genres: genres,
       filter: filter,
-      onlyWithUserRating: onlyWithUserRating,
-      onlyWithoutUserRating: onlyWithoutUserRating,
+      ratingFilter: ratingFilter,
       orderBy: orderBy,
       sortOrder: sortOrder,
       page: page,
