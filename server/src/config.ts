@@ -62,6 +62,9 @@ export class Config {
   static readonly IGDB_CLIENT_ID = process.env.IGDB_CLIENT_ID;
   static readonly IGDB_CLIENT_SECRET = process.env.IGDB_CLIENT_SECRET;
 
+  static readonly PLEX_WEBHOOK_DEBUG =
+    process.env.PLEX_WEBHOOK_DEBUG === 'true';
+
   static readonly HOSTNAME = process.env.HOSTNAME || '127.0.0.1';
   static readonly PORT = Number(process.env.PORT) || 7481;
 
