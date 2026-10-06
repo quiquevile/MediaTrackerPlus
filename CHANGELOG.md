@@ -34,6 +34,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   account/player, parsed ids, target user) with warnings on unmatched items,
   plus optional full-payload dump via `PLEX_WEBHOOK_DEBUG=true`. Also fixes
   a crash on payloads without `Guid`s.
+- Plex webhooks can be restricted by account (`PLEX_ALLOWED_ACCOUNTS` /
+  `PLEX_DENIED_ACCOUNTS`, comma-separated, case-insensitive, deny wins).
 
 ### Changed
 - Existing ratings are doubled by migration `20261004000000_ratingScaleToTen`

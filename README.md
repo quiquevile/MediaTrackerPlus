@@ -27,6 +27,12 @@ logged with event, title, Plex account/player, parsed ids and target user,
 plus the full JSON payload. Logs are visible in Settings → Logs (enable the
 debug level). Turn it off when done investigating.
 
+To accept webhooks from selected Plex accounts only, set
+`PLEX_ALLOWED_ACCOUNTS="miperfil,otro"` and/or
+`PLEX_DENIED_ACCOUNTS="Niños"` (comma-separated, case-insensitive). An empty
+allow list accepts every account except denied ones; deny always wins.
+Dropped deliveries are logged in debug mode.
+
 See [CHANGELOG.md](CHANGELOG.md) for details. Everything below is the
 original upstream README, kept unaltered.
 
