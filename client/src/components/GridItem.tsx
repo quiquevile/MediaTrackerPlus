@@ -336,7 +336,7 @@ export const GridItem: FunctionComponent<{
   );
 };
 
-const Item = styled.div.attrs({
+export const Item = styled.div.attrs({
   className:
     'rounded bg-red-900 px-1 text-lg ml-1 text-white hover:text-yellow-600 shadow-sm shadow-black',
 })``;

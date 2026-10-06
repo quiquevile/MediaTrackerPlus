@@ -11,6 +11,7 @@ import {
 } from 'mediatracker-api';
 import { Poster } from 'src/components/Poster';
 import { BadgeRating } from 'src/components/StarRating';
+import { Item } from 'src/components/GridItem';
 import { formatEpisodeNumber } from 'src/utils';
 
 const mediaTypeString: Record<string, string> = {
@@ -39,6 +40,42 @@ export const HistoryEpisodeCard: FunctionComponent<{
           itemMediaType={mediaItem.mediaType as MediaType}
           href={`#/details/${mediaItem.id}`}
         >
+          {mediaItem.mediaType === 'tv' ? (
+            <a
+              className="absolute inline-flex pointer-events-auto foo right-1 top-1 hover:no-underline"
+              href={`#/seasons/${mediaItem.id}`}
+            >
+              {mediaItem.firstUnwatchedEpisode && (
+                <Item>
+                  {formatEpisodeNumber(
+                    mediaItem.firstUnwatchedEpisode as unknown as TvEpisode
+                  )}
+                </Item>
+              )}
+              {mediaItem.unseenEpisodesCount > 0 && (
+                <Item>{mediaItem.unseenEpisodesCount}</Item>
+              )}
+              {mediaItem.seen == true && (
+                <Item>
+                  <i className="flex text-white material-icons hover:text-yellow-600">
+                    check_circle_outline
+                  </i>
+                </Item>
+              )}
+            </a>
+          ) : (
+            <>
+              {mediaItem.seen == true && (
+                <div className="absolute inline-flex pointer-events-auto foo right-1 top-1">
+                  <Item>
+                    <i className="flex text-white select-none material-icons">
+                      check_circle_outline
+                    </i>
+                  </Item>
+                </div>
+              )}
+            </>
+          )}
           <div className="absolute pointer-events-auto bottom-1 left-1">
             <div className="flex gap-1">
               <BadgeRating mediaItem={mediaItemProp} />
