@@ -4,7 +4,10 @@ import { t, Trans } from '@lingui/macro';
 import { MediaType, MediaItemItemsResponse } from 'mediatracker-api';
 import { useSeenHistory, useSeenHistoryFacets } from 'src/api/history';
 import { GridItem } from 'src/components/GridItem';
-import { HistoryEpisodeCard } from 'src/components/HistoryEpisodeCard';
+import {
+  HistoryEpisodeCard,
+  RemoveSeenEntryButton,
+} from 'src/components/HistoryEpisodeCard';
 import { MultiSelect } from 'src/components/MultiSelect';
 import { Pagination } from 'src/components/PaginatedGridItems';
 import { Toggle } from 'src/components/Toggle';
@@ -224,26 +227,29 @@ export const HistoryPage: FunctionComponent = () => {
                   </div>
                 </div>
               ) : (
-                entries?.map((entry) =>
-                  entry.episode ? (
-                    <HistoryEpisodeCard key={entry.id} entry={entry} />
-                  ) : (
-                    <GridItem
-                      key={entry.id}
-                      mediaItem={
-                        entry.mediaItem as unknown as MediaItemItemsResponse
-                      }
-                      appearance={{
-                        showRating: true,
-                        showLastSeenAt: true,
-                        topBar: {
-                          showFirstUnwatchedEpisodeBadge: true,
-                          showUnwatchedEpisodesCount: true,
-                        },
-                      }}
-                    />
-                  )
-                )
+                entries?.map((entry) => (
+                  <div key={entry.id} className="flex flex-col items-center">
+                    {entry.episode ? (
+                      <HistoryEpisodeCard entry={entry} />
+                    ) : (
+                      <GridItem
+                        mediaItem={
+                          entry.mediaItem as unknown as MediaItemItemsResponse
+                        }
+                        appearance={{
+                          showRating: true,
+                          showLastSeenAt: true,
+                          topBar: {
+                            showFirstUnwatchedEpisodeBadge: true,
+                            showUnwatchedEpisodesCount: true,
+                          },
+                        }}
+                      />
+                    )}
+
+                    <RemoveSeenEntryButton entry={entry} />
+                  </div>
+                ))
               )}
 
               <div className="footer">

@@ -268,6 +268,7 @@ export const markAsUnseen = async (args: {
 
   await updateMediaItem(args.mediaItem);
   queryClient.invalidateQueries(['items']);
+  queryClient.invalidateQueries(['seenHistory']);
 };
 
 export const removeFromSeenHistory = async (

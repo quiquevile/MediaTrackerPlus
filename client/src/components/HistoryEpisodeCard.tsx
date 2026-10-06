@@ -1,6 +1,6 @@
 import React, { FunctionComponent } from 'react';
 import { parseISO } from 'date-fns';
-import { t } from '@lingui/macro';
+import { plural, t, Trans } from '@lingui/macro';
 
 import {
   MediaItemItemsResponse,
@@ -12,7 +12,16 @@ import {
 import { Poster } from 'src/components/Poster';
 import { BadgeRating } from 'src/components/StarRating';
 import { Item } from 'src/components/GridItem';
+import { Confirm } from 'src/components/Confirm';
+import { markAsUnseen } from 'src/api/details';
 import { formatEpisodeNumber } from 'src/utils';
+import {
+  isAudiobook,
+  isBook,
+  isMovie,
+  isTvShow,
+  isVideoGame,
+} from 'src/utils';
 
 const mediaTypeString: Record<string, string> = {
   audiobook: t`Audiobook`,
@@ -124,6 +133,49 @@ export const HistoryEpisodeCard: FunctionComponent<{
           </div>
         </div>
       </div>
+    </div>
+  );
+};
+
+export const RemoveSeenEntryButton: FunctionComponent<{
+  entry: SeenHistoryEntry;
+}> = (props) => {
+  const { entry } = props;
+  const { mediaItem, episode } = entry;
+  const mediaItemProp = entry.mediaItem as unknown as MediaItemItemsResponse;
+  const mediaType = mediaItem.mediaType as MediaType;
+
+  return (
+    <div
+      className="text-sm btn-red"
+      onClick={async () =>
+        (await Confirm(
+          plural(1, {
+            one: 'Do you want to remove # seen history entry?',
+            other: 'Do you want to remove all # seen history entries?',
+          })
+        )) &&
+        markAsUnseen({
+          mediaItem: mediaItemProp,
+          seenId: entry.id,
+        })
+      }
+    >
+      {episode ? (
+        <Trans>Marcar como no visto</Trans>
+      ) : isMovie(mediaType) ? (
+        <Trans>Marcar como no vista</Trans>
+      ) : isBook(mediaType) ? (
+        <Trans>Marcar como no leído</Trans>
+      ) : isVideoGame(mediaType) ? (
+        <Trans>Marcar como no jugado</Trans>
+      ) : isAudiobook(mediaType) ? (
+        <Trans>Marcar como no escuchado</Trans>
+      ) : isTvShow(mediaType) ? (
+        <Trans>Marcar como no vista</Trans>
+      ) : (
+        <Trans>Marcar como no visto</Trans>
+      )}
     </div>
   );
 };
