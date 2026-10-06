@@ -43,11 +43,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   image exports (`*.tar`) are now ignored via `.gitignore`.
 
 ### Fixed
+- Top menu is now sticky: it stays visible while the page content scrolls
+  (modal dialogs still open above it).
 - `docker-compose.yaml` now points to `dnlwttnbrg/mediatracker-plus:latest`
   instead of the stale `bonukai/mediatracker` image.
-- Working docker `HEALTHCHECK`: probes
-  `http://127.0.0.1:${PORT:-7481}/api/configuration` (unauthenticated,
-  lightweight endpoint) instead of the broken `curl ${HOSTNAME}:${PORT}`.
+- Working docker `HEALTHCHECK`: probes `/api/configuration` on the container
+  hostname (the address the server binds to) instead of the broken
+  `curl ${HOSTNAME}:${PORT}`.
 - Newly added books now fetch their full metadata (overview, full release
   date, genres) automatically when opening the details page
   (`needsDetails` flag, same as TMDB items), instead of requiring the manual
