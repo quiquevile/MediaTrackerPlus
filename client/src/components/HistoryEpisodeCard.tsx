@@ -38,7 +38,29 @@ export const HistoryEpisodeCard: FunctionComponent<{
           src={mediaItem.posterSmall}
           itemMediaType={mediaItem.mediaType as MediaType}
           href={`#/details/${mediaItem.id}`}
-        />
+        >
+          <div className="absolute pointer-events-auto bottom-1 left-1">
+            <div className="flex gap-1">
+              <BadgeRating mediaItem={mediaItemProp} />
+
+              {season && (
+                <BadgeRating
+                  mediaItem={mediaItemProp}
+                  season={seasonProp}
+                  starClass="text-indigo-600"
+                />
+              )}
+
+              {episode && (
+                <BadgeRating
+                  mediaItem={mediaItemProp}
+                  episode={episodeProp}
+                  starClass="text-green-600 dark:text-green-400"
+                />
+              )}
+            </div>
+          </div>
+        </Poster>
 
         <div className="mt-1 overflow-hidden whitespace-nowrap text-ellipsis">
           <div className="flex justify-between text-gray-500 dark:text-gray-400">
@@ -62,26 +84,6 @@ export const HistoryEpisodeCard: FunctionComponent<{
 
           <div className="overflow-hidden overflow-ellipsis whitespace-nowrap">
             {entry.date ? new Date(entry.date).toLocaleString() : null}
-          </div>
-
-          <div className="flex gap-1 mt-1">
-            <BadgeRating mediaItem={mediaItemProp} />
-
-            {season && (
-              <BadgeRating
-                mediaItem={mediaItemProp}
-                season={seasonProp}
-                starClass="text-indigo-600"
-              />
-            )}
-
-            {episode && (
-              <BadgeRating
-                mediaItem={mediaItemProp}
-                episode={episodeProp}
-                starClass="text-green-600 dark:text-green-400"
-              />
-            )}
           </div>
         </div>
       </div>
