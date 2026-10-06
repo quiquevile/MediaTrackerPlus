@@ -19,6 +19,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   viewing/released year, genre and rated/unrated. Backed by new
   `GET /api/seen/history` (paginated, one entry per `seen` row with episode
   details).
+- History episode cards show three rating stars (show yellow, season indigo,
+  episode green), each opening its own vote/review dialog. New `ratingFilter`
+  (`rated`, `unrated`, `unrated-show`, `unrated-season`, `unrated-episode`).
 - History year/genre filters are multi-selects preloaded with the existing
   values (`GET /api/seen/history/facets`), OR-combined within each filter.
   Separate "Seen year" (viewing date) and "Year" (release date) filters.
