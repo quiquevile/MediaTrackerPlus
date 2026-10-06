@@ -18,6 +18,12 @@ import {
 const logs: string[] = [];
 export const configMigrationLogs = () => logs;
 
+const parseStringList = (value: string | undefined): string[] =>
+  (value || '')
+    .split(',')
+    .map((item) => item.trim())
+    .filter((item) => item.length > 0);
+
 export class Config {
   static readonly version = version;
 
@@ -64,6 +70,13 @@ export class Config {
 
   static readonly PLEX_WEBHOOK_DEBUG =
     process.env.PLEX_WEBHOOK_DEBUG === 'true';
+
+  static readonly PLEX_ALLOWED_ACCOUNTS = parseStringList(
+    process.env.PLEX_ALLOWED_ACCOUNTS
+  );
+  static readonly PLEX_DENIED_ACCOUNTS = parseStringList(
+    process.env.PLEX_DENIED_ACCOUNTS
+  );
 
   static readonly HOSTNAME = process.env.HOSTNAME || '127.0.0.1';
   static readonly PORT = Number(process.env.PORT) || 7481;

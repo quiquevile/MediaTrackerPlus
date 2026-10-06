@@ -38,6 +38,20 @@ export class PlexController {
       logger.debug(`Plex webhook payload: ${JSON.stringify(payload)}`);
     }
 
+    if (
+      !isPlexAccountAllowed(
+        payload.Account?.title,
+        Config.PLEX_ALLOWED_ACCOUNTS,
+        Config.PLEX_DENIED_ACCOUNTS
+      )
+    ) {
+      logger.debug(
+        `Plex webhook: dropping delivery from account "${payload.Account?.title}" (account filter)`
+      );
+      res.sendStatus(200);
+      return;
+    }
+
     if (payload.event === 'media.scrobble') {
       const { imdbId, tmdbId, tvdbId, duration } = parsePlexPayload(payload);
 
@@ -161,6 +175,26 @@ export const describePlexPayload = (
   ]
     .filter(Boolean)
     .join(' ');
+};
+
+export const isPlexAccountAllowed = (
+  accountTitle: string | undefined,
+  allowedAccounts: string[],
+  deniedAccounts: string[]
+): boolean => {
+  const normalized = (accountTitle || '').trim().toLowerCase();
+  const matches = (list: string[]) =>
+    list.some((entry) => entry.trim().toLowerCase() === normalized);
+
+  if (matches(deniedAccounts)) {
+    return false;
+  }
+
+  if (allowedAccounts.length === 0) {
+    return true;
+  }
+
+  return normalized.length > 0 && matches(allowedAccounts);
 };
 
 export const getPlexPayload = async (req: Request) => {

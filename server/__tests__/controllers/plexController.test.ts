@@ -4,6 +4,7 @@ import { Request } from 'express';
 import {
   describePlexPayload,
   getPlexPayload,
+  isPlexAccountAllowed,
   PlexPayload,
 } from 'src/controllers/plexController';
 
@@ -110,5 +111,30 @@ describe('plex webhook', () => {
         1
       )
     ).toEqual('event=media.stop type=movie user=1');
+  });
+});
+
+describe('plex account filter', () => {
+  test('allows everything by default', () => {
+    expect(isPlexAccountAllowed('Niños', [], [])).toEqual(true);
+    expect(isPlexAccountAllowed(undefined, [], [])).toEqual(true);
+  });
+
+  test('allow list restricts to listed accounts', () => {
+    expect(isPlexAccountAllowed('miperfil', ['miperfil'], [])).toEqual(true);
+    expect(isPlexAccountAllowed('Niños', ['miperfil'], [])).toEqual(false);
+    expect(isPlexAccountAllowed(undefined, ['miperfil'], [])).toEqual(false);
+  });
+
+  test('matching is case-insensitive and trims whitespace', () => {
+    expect(isPlexAccountAllowed('  MIPERFIL ', ['miperfil'], [])).toEqual(
+      true
+    );
+    expect(isPlexAccountAllowed('niños', [], [' Niños '])).toEqual(false);
+  });
+
+  test('deny list wins over allow list', () => {
+    expect(isPlexAccountAllowed('Niños', ['Niños'], ['Niños'])).toEqual(false);
+    expect(isPlexAccountAllowed('miperfil', ['miperfil'], [])).toEqual(true);
   });
 });
