@@ -1,25 +1,33 @@
 # Build server and client.
 # sharp ships prebuilt libvips binaries (x64 + arm64 musl), so there is no
 # need to compile libvips from source.
+#
+# Layers are ordered by change frequency: toolchain and dependencies first
+# (cached across code changes), source code last.
 FROM node:20-alpine3.20 AS build
 
+RUN apk add --no-cache python3 g++ make
+
 WORKDIR /app
+
+COPY ["package.json", "package-lock.json*", "./"]
+COPY ["server/package.json", "server/package-lock.json*", "./server/"]
+COPY ["client/package.json", "client/package-lock.json*", "./client/"]
+COPY ["rest-api/package.json", "rest-api/package-lock.json*", "./rest-api/"]
+RUN npm ci
 
 COPY server/ /app/server
 COPY client/ /app/client
 COPY rest-api/ /app/rest-api
-COPY ["package.json", "package-lock.json*", "./"]
-
-RUN apk add --no-cache python3 g++ make
-RUN npm ci
 RUN npm run build
 
 # Prune dev dependencies for production
 FROM node:20-alpine3.20 AS server-build-production
 
+RUN apk add --no-cache python3 g++ make
+
 WORKDIR /server
 COPY ["server/package.json", "server/package-lock.json*", "./"]
-RUN apk add --no-cache python3 g++ make
 RUN npm ci --omit=dev
 
 # Runtime image
