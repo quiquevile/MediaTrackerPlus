@@ -1,5 +1,6 @@
 import { RequestHandler } from 'express';
 import { logger } from 'src/logger';
+import { redactUrl } from 'src/logger/redact';
 
 export const httpLogMiddleware: RequestHandler = (req, res, next) => {
   const start = new Date().getTime();
@@ -7,7 +8,7 @@ export const httpLogMiddleware: RequestHandler = (req, res, next) => {
     logger.http({
       ip: req.ip,
       method: req.method,
-      url: req.url,
+      url: redactUrl(req.url),
       httpVersion: req.httpVersion,
       statusCode: res.statusCode,
       responseSize: Number(res.getHeader('content-length')),

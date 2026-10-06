@@ -1,5 +1,6 @@
 import { ErrorRequestHandler } from 'express';
 import { logger } from 'src/logger';
+import { redactBody, redactUrl } from 'src/logger/redact';
 import { ValidationError } from 'typescript-routes-to-openapi-server';
 
 export const errorLoggerMiddleware: ErrorRequestHandler = (
@@ -12,9 +13,9 @@ export const errorLoggerMiddleware: ErrorRequestHandler = (
     logger.error({
       message: `ValidationError`,
       error: err.message,
-      body: req.body,
+      body: redactBody(req.body),
       method: req.method,
-      url: req.url,
+      url: redactUrl(req.url),
       type: 'validationError',
     });
     res.status(400).send(String(err));
