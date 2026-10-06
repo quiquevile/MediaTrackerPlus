@@ -45,6 +45,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Fixed
 - Top menu is now sticky: it stays visible while the page content scrolls
   (modal dialogs still open above it).
+- Metadata refreshes no longer fail with `UNIQUE constraint failed` when
+  TMDB reassigns episode/season `tmdbId`s: the stale row releases the id
+  (user data like seen/rating entries is preserved) and a single bad
+  season/episode no longer aborts the whole show update.
 - `docker-compose.yaml` now points to `dnlwttnbrg/mediatracker-plus:latest`
   instead of the stale `bonukai/mediatracker` image.
 - Working docker `HEALTHCHECK`: probes `/api/configuration` on the container
