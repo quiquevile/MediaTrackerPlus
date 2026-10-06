@@ -23,7 +23,30 @@ const seenRows: Seen[] = [
   { id: 4, date: d('2022-03-10'), mediaItemId: 1, episodeId: 2, userId: 0 },
   // book seen, undated
   { id: 5, date: null, mediaItemId: Data.book.id, userId: 0 },
+  // season 2 episode seen, no votes anywhere near it
+  { id: 6, date: d('2021-07-20'), mediaItemId: 1, episodeId: 9, userId: 0 },
 ];
+
+const season2 = {
+  id: 2,
+  seasonNumber: 2,
+  title: 'Season 2',
+  isSpecialSeason: false,
+  tvShowId: 1,
+  numberOfEpisodes: 1,
+};
+
+const season2Episode = {
+  id: 9,
+  seasonNumber: 2,
+  episodeNumber: 1,
+  seasonAndEpisodeNumber: 2001,
+  seasonId: 2,
+  tvShowId: 1,
+  title: 'Season 2 Episode 1',
+  isSpecialEpisode: false,
+  releaseDate: '2001-05-05',
+};
 
 const ratings: UserRating[] = [
   {
@@ -62,11 +85,12 @@ describe('seen history', () => {
   beforeAll(async () => {
     await Database.knex('user').insert(Data.user);
     await Database.knex('mediaItem').insert(items);
-    await Database.knex('season').insert(Data.season);
+    await Database.knex('season').insert([Data.season, season2]);
     await Database.knex('episode').insert([
       Data.episode as TvEpisode,
       Data.episode2 as TvEpisode,
       Data.episode3 as TvEpisode,
+      season2Episode as TvEpisode,
     ]);
     await Database.knex('seen').insert(seenRows);
     await Database.knex('userRating').insert(ratings);
@@ -81,11 +105,11 @@ describe('seen history', () => {
   test('default: all entries, most recent first, undated last', async () => {
     const res = await seenRepository.history({ userId: 0 });
 
-    expect(res.total).toEqual(5);
-    expect(res.data.map((e) => e.id)).toEqual([2, 3, 1, 4, 5]);
+    expect(res.total).toEqual(6);
+    expect(res.data.map((e) => e.id)).toEqual([2, 3, 1, 4, 6, 5]);
     expect(res.data[0].mediaItem.title).toEqual('movie');
     expect(res.data[1].episode.episodeNumber).toEqual(1);
-    expect(res.data[4].date).toBeNull();
+    expect(res.data[5].date).toBeNull();
   });
 
   test('filter by media type', async () => {
@@ -188,7 +212,7 @@ describe('seen history', () => {
       userId: 0,
       ratingFilter: 'unrated',
     });
-    expect(unrated.data.map((e) => e.id).sort()).toEqual([4, 5]);
+    expect(unrated.data.map((e) => e.id).sort()).toEqual([4, 5, 6]);
   });
 
   test('cleared and zero votes count as unrated', async () => {
@@ -204,7 +228,7 @@ describe('seen history', () => {
       userId: 0,
       ratingFilter: 'unrated',
     });
-    expect(unrated.data.map((e) => e.id).sort()).toEqual([4, 5]);
+    expect(unrated.data.map((e) => e.id).sort()).toEqual([4, 5, 6]);
 
     const bookEntry = unrated.data.find((e) => e.id === 5);
     expect(bookEntry.mediaItem.userRating.rating).toBeNull();
@@ -216,21 +240,21 @@ describe('seen history', () => {
       userId: 0,
       ratingFilter: 'unrated-season',
     });
-    expect(unratedSeason.data.map((e) => e.id).sort()).toEqual([3, 4]);
+    expect(unratedSeason.data.map((e) => e.id).sort()).toEqual([3, 4, 6]);
 
     // Only show entries (3, 4) can match; the show has no item-level vote.
     const unratedShow = await seenRepository.history({
       userId: 0,
       ratingFilter: 'unrated-show',
     });
-    expect(unratedShow.data.map((e) => e.id).sort()).toEqual([3, 4]);
+    expect(unratedShow.data.map((e) => e.id).sort()).toEqual([3, 4, 6]);
 
     // Episode 1 is voted, episode 2 is not.
     const unratedEpisode = await seenRepository.history({
       userId: 0,
       ratingFilter: 'unrated-episode',
     });
-    expect(unratedEpisode.data.map((e) => e.id)).toEqual([4]);
+    expect(unratedEpisode.data.map((e) => e.id)).toEqual([4, 6]);
   });
 
   test('entry carries season data', async () => {
@@ -258,11 +282,18 @@ describe('seen history', () => {
     });
     expect(rated.data.map((e) => e.id).sort()).toEqual([1, 2, 3, 4]);
 
+    // The season 1 vote must not mark the season 2 entry as rated.
     const unratedSeason = await seenRepository.history({
       userId: 0,
       ratingFilter: 'unrated-season',
     });
-    expect(unratedSeason.total).toEqual(0);
+    expect(unratedSeason.data.map((e) => e.id)).toEqual([6]);
+
+    const unrated = await seenRepository.history({
+      userId: 0,
+      ratingFilter: 'unrated',
+    });
+    expect(unrated.data.map((e) => e.id).sort()).toEqual([5, 6]);
 
     const entry = (
       await seenRepository.history({ userId: 0 })
@@ -283,6 +314,7 @@ describe('seen history', () => {
       'movie',
       'title',
       'title',
+      'title',
     ]);
   });
 
@@ -295,7 +327,7 @@ describe('seen history', () => {
   test('facets list existing years and genres', async () => {
     const facets = await seenRepository.historyFacets(0);
 
-    expect(facets.viewedYears).toEqual(['2024', '2023', '2022']);
+    expect(facets.viewedYears).toEqual(['2024', '2023', '2022', '2021']);
     expect(facets.releaseYears).toEqual(['2002', '2001']);
     expect(facets.genres).toEqual(['Action', 'Drama', 'Fantasy']);
   });

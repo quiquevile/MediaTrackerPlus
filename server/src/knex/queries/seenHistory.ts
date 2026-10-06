@@ -125,9 +125,24 @@ const applyFilters = (query: Knex.QueryBuilder, args: GetSeenHistoryArgs) => {
       .where('userRating.rating', '>', 0)
       .andWhere((builder: Knex.QueryBuilder) =>
         builder
-          .whereNull('userRating.episodeId')
-          .orWhereRaw(
-            '"userRating"."episodeId" = "seen"."episodeId"'
+          // Show-level vote.
+          .where((branch: Knex.QueryBuilder) =>
+            branch
+              .whereNull('userRating.episodeId')
+              .whereNull('userRating.seasonId')
+          )
+          // Vote on this entry's season only, not on other seasons.
+          .orWhere((branch: Knex.QueryBuilder) =>
+            branch
+              .whereNull('userRating.episodeId')
+              .whereNotNull('seen.episodeId')
+              .whereRaw('"userRating"."seasonId" = "episode"."seasonId"')
+          )
+          // Vote on this entry's episode.
+          .orWhere((branch: Knex.QueryBuilder) =>
+            branch
+              .whereNotNull('seen.episodeId')
+              .whereRaw('"userRating"."episodeId" = "seen"."episodeId"')
           )
       );
 
