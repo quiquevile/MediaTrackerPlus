@@ -67,6 +67,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Cleared (NULL) and zero votes count as unrated again in the Rated/Unrated
   filters, same as never-rated items, on the History page and everywhere
   else.
+- History rating filters are scoped to the entry's own levels: a season vote
+  no longer marks other seasons' episodes as rated.
 
 ## [0.2.1] - 2026-04-06
 
