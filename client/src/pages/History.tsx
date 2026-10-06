@@ -228,7 +228,10 @@ export const HistoryPage: FunctionComponent = () => {
                 </div>
               ) : (
                 entries?.map((entry) => (
-                  <div key={entry.id} className="flex flex-col items-center">
+                  <div
+                    key={entry.id}
+                    className="flex flex-col items-center mb-4"
+                  >
                     {entry.episode ? (
                       <HistoryEpisodeCard entry={entry} />
                     ) : (
