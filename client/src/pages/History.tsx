@@ -1,9 +1,10 @@
 import React, { FormEventHandler, FunctionComponent, useState } from 'react';
 import { t, Trans } from '@lingui/macro';
 
-import { MediaType, MediaItemItemsResponse, TvEpisode } from 'mediatracker-api';
+import { MediaType, MediaItemItemsResponse } from 'mediatracker-api';
 import { useSeenHistory, useSeenHistoryFacets } from 'src/api/history';
 import { GridItem } from 'src/components/GridItem';
+import { HistoryEpisodeCard } from 'src/components/HistoryEpisodeCard';
 import { MultiSelect } from 'src/components/MultiSelect';
 import { Pagination } from 'src/components/PaginatedGridItems';
 import { Toggle } from 'src/components/Toggle';
@@ -16,7 +17,13 @@ const mediaTypes: { value: MediaType; label: string }[] = [
   { value: 'audiobook', label: t`Audiobooks` },
 ];
 
-type RatedFilter = 'all' | 'rated' | 'unrated';
+type RatingFilter =
+  | 'all'
+  | 'rated'
+  | 'unrated'
+  | 'unrated-show'
+  | 'unrated-season'
+  | 'unrated-episode';
 
 export const HistoryPage: FunctionComponent = () => {
   const [page, setPage] = useState<number>(1);
@@ -26,7 +33,7 @@ export const HistoryPage: FunctionComponent = () => {
   const [genres, setGenres] = useState<string[]>([]);
   const [searchInput, setSearchInput] = useState<string>('');
   const [filter, setFilter] = useState<string>('');
-  const [ratedFilter, setRatedFilter] = useState<RatedFilter>('all');
+  const [ratedFilter, setRatedFilter] = useState<RatingFilter>('all');
   const [orderBy, setOrderBy] = useState<'date' | 'title'>('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
@@ -76,8 +83,7 @@ export const HistoryPage: FunctionComponent = () => {
         releaseYears.length > 0 ? releaseYears.join(',') : undefined,
       genres: genres.length > 0 ? genres.join(',') : undefined,
       filter: filter || undefined,
-      onlyWithUserRating: ratedFilter === 'rated' ? true : undefined,
-      onlyWithoutUserRating: ratedFilter === 'unrated' ? true : undefined,
+      ratingFilter: ratedFilter === 'all' ? undefined : ratedFilter,
       orderBy: orderBy,
       sortOrder: sortOrder,
     });
@@ -163,13 +169,16 @@ export const HistoryPage: FunctionComponent = () => {
               <select
                 value={ratedFilter}
                 onChange={(e) => {
-                  setRatedFilter(e.currentTarget.value as RatedFilter);
+                  setRatedFilter(e.currentTarget.value as RatingFilter);
                   resetPage();
                 }}
               >
                 <option value="all">{t`All`}</option>
                 <option value="rated">{t`Rated`}</option>
                 <option value="unrated">{t`Unrated`}</option>
+                <option value="unrated-show">{t`Unrated show`}</option>
+                <option value="unrated-season">{t`Unrated season`}</option>
+                <option value="unrated-episode">{t`Unrated episode`}</option>
               </select>
 
               <select
@@ -215,27 +224,26 @@ export const HistoryPage: FunctionComponent = () => {
                   </div>
                 </div>
               ) : (
-                entries?.map((entry) => (
-                  <GridItem
-                    key={entry.id}
-                    mediaItem={
-                      entry.mediaItem as unknown as MediaItemItemsResponse
-                    }
-                    episode={
-                      entry.episode
-                        ? (entry.episode as unknown as TvEpisode)
-                        : undefined
-                    }
-                    appearance={{
-                      showRating: true,
-                      showLastSeenAt: true,
-                      topBar: {
-                        showFirstUnwatchedEpisodeBadge: true,
-                        showUnwatchedEpisodesCount: true,
-                      },
-                    }}
-                  />
-                ))
+                entries?.map((entry) =>
+                  entry.episode ? (
+                    <HistoryEpisodeCard key={entry.id} entry={entry} />
+                  ) : (
+                    <GridItem
+                      key={entry.id}
+                      mediaItem={
+                        entry.mediaItem as unknown as MediaItemItemsResponse
+                      }
+                      appearance={{
+                        showRating: true,
+                        showLastSeenAt: true,
+                        topBar: {
+                          showFirstUnwatchedEpisodeBadge: true,
+                          showUnwatchedEpisodesCount: true,
+                        },
+                      }}
+                    />
+                  )
+                )
               )}
 
               <div className="footer">

@@ -247,11 +247,15 @@ const StarRatingModal: FunctionComponent<
 };
 
 export const BadgeRating: FunctionComponent<
-  | { mediaItem: MediaItemItemsResponse }
-  | { mediaItem: MediaItemItemsResponse; season: TvSeason }
-  | { mediaItem: MediaItemItemsResponse; episode: TvEpisode }
+  | { mediaItem: MediaItemItemsResponse; starClass?: string }
+  | { mediaItem: MediaItemItemsResponse; season: TvSeason; starClass?: string }
+  | {
+      mediaItem: MediaItemItemsResponse;
+      episode: TvEpisode;
+      starClass?: string;
+    }
 > = (props) => {
-  const { mediaItem, season, episode } = {
+  const { mediaItem, season, episode, starClass } = {
     season: undefined,
     episode: undefined,
     ...props,
@@ -284,7 +288,7 @@ export const BadgeRating: FunctionComponent<
               <span
                 className={clsx([
                   'material-icons hover:text-yellow-400',
-                  rating && 'text-yellow-400',
+                  rating && (starClass || 'text-yellow-400'),
                 ])}
               >
                 star
