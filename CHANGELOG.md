@@ -73,6 +73,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   else.
 - History rating filters are scoped to the entry's own levels: a season vote
   no longer marks other seasons' episodes as rated.
+- Secrets are masked in logs: tokens in request URLs and password-like
+  fields in request bodies are logged as `***`.
 
 ## [0.2.1] - 2026-04-06
 
