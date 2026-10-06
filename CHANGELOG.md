@@ -30,6 +30,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   Audible category ladders mapped to TMDB-style canonical genres, max 5 per
   item), so the genre filter works across all media types. Existing items
   pick them up on the next metadata refresh.
+- Plex webhook visibility: every delivery is logged (event, title, Plex
+  account/player, parsed ids, target user) with warnings on unmatched items,
+  plus optional full-payload dump via `PLEX_WEBHOOK_DEBUG=true`. Also fixes
+  a crash on payloads without `Guid`s.
 
 ### Changed
 - Existing ratings are doubled by migration `20261004000000_ratingScaleToTen`

@@ -16,6 +16,17 @@ tracking.
   most recent first, with local search and type/year/genre filters.
 - Normalized genres for books (OpenLibrary) and audiobooks (Audible).
 
+## Plex webhook
+
+Point Plex webhooks at `/api/plex?token=<application-token>` (create the
+token in Settings → Application tokens). `media.scrobble` events for movies
+and episodes are recorded as seen entries.
+
+To inspect what Plex sends, set `PLEX_WEBHOOK_DEBUG=true`: every delivery is
+logged with event, title, Plex account/player, parsed ids and target user,
+plus the full JSON payload. Logs are visible in Settings → Logs (enable the
+debug level). Turn it off when done investigating.
+
 See [CHANGELOG.md](CHANGELOG.md) for details. Everything below is the
 original upstream README, kept unaltered.
 
