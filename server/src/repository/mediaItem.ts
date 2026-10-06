@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import { Knex } from 'knex';
 
 import { omitUndefinedValues, repository } from 'src/repository/repository';
 import { getItemsKnex, generateColumnNames } from 'src/knex/queries/items';
@@ -235,17 +236,37 @@ class MediaItemRepository extends repository<MediaItemBase>({
             );
 
             if (season.id) {
-              const res = await trx('season')
-                .update(newSeason)
-                .where({ id: season.id });
+              try {
+                await clearStaleTmdbId({
+                  trx: trx,
+                  tableName: 'season',
+                  id: season.id,
+                  tmdbId: newSeason.tmdbId as number,
+                });
 
-              updated = res === 1;
+                const res = await trx('season')
+                  .update(newSeason)
+                  .where({ id: season.id });
+
+                updated = res === 1;
+              } catch (error) {
+                logger.warn(
+                  `Failed to update season ${season.seasonNumber} of mediaItem ${mediaItem.id}, skipping: ${error}`
+                );
+              }
             }
 
             if (!updated) {
-              season.id = (
-                await trx('season').insert(newSeason).returning('id')
-              ).at(0).id;
+              try {
+                season.id = (
+                  await trx('season').insert(newSeason).returning('id')
+                ).at(0).id;
+              } catch (error) {
+                logger.warn(
+                  `Failed to insert season ${season.seasonNumber} of mediaItem ${mediaItem.id}, skipping: ${error}`
+                );
+                return;
+              }
             }
 
             if (season.episodes) {
@@ -264,16 +285,35 @@ class MediaItemRepository extends repository<MediaItemBase>({
                 );
 
                 if (episode.id) {
-                  const res = await trx<TvEpisode>('episode')
-                    .update(newEpisode)
-                    .where({ id: episode.id });
+                  try {
+                    await clearStaleTmdbId({
+                      trx: trx,
+                      tableName: 'episode',
+                      id: episode.id,
+                      tmdbId: newEpisode.tmdbId as number,
+                    });
 
-                  updated = res === 1;
+                    const res = await trx<TvEpisode>('episode')
+                      .update(newEpisode)
+                      .where({ id: episode.id });
+
+                    updated = res === 1;
+                  } catch (error) {
+                    logger.warn(
+                      `Failed to update episode S${episode.seasonNumber}E${episode.episodeNumber} of mediaItem ${mediaItem.id}, skipping: ${error}`
+                    );
+                  }
                 }
                 if (!updated) {
-                  episode.id = (
-                    await trx('episode').insert(newEpisode).returning('id')
-                  ).at(0).id;
+                  try {
+                    episode.id = (
+                      await trx('episode').insert(newEpisode).returning('id')
+                    ).at(0).id;
+                  } catch (error) {
+                    logger.warn(
+                      `Failed to insert episode S${episode.seasonNumber}E${episode.episodeNumber} of mediaItem ${mediaItem.id}, skipping: ${error}`
+                    );
+                  }
                 }
               }
             }
@@ -732,6 +772,30 @@ class MediaItemRepository extends repository<MediaItemBase>({
 }
 
 export const mediaItemRepository = new MediaItemRepository();
+
+/**
+ * External providers renumber episodes/seasons over time, so the tmdbId
+ * coming in with fresh metadata can already sit on a different local row.
+ * tmdbId is only an external pointer (local identity is show + numbers),
+ * so release it from the stale row instead of violating UNIQUE.
+ */
+const clearStaleTmdbId = async (args: {
+  trx: Knex.Transaction;
+  tableName: 'season' | 'episode';
+  id: number;
+  tmdbId?: number;
+}) => {
+  const { trx, tableName, id, tmdbId } = args;
+
+  if (!tmdbId) {
+    return;
+  }
+
+  await trx(tableName)
+    .update({ tmdbId: null })
+    .where({ tmdbId: tmdbId })
+    .whereNot({ id: id });
+};
 
 const externalIdColumnNames = <const>[
   'openlibraryId',

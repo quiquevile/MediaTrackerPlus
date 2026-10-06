@@ -5,6 +5,7 @@ import {
   MediaItemForProvider,
 } from 'src/entity/mediaItem';
 import { mediaItemRepository } from 'src/repository/mediaItem';
+import { Database } from 'src/dbconfig';
 import { clearDatabase, runMigrations } from '__tests__/__utils__/utils';
 
 describe('mediaItemRepository', () => {
@@ -94,6 +95,113 @@ describe('mediaItemRepository', () => {
     expect(result.seasons.at(0).posterId).toBeDefined();
     expect(result.seasons.at(1).posterId).toBeDefined();
     expect(result.seasons.at(3).posterId).toBeDefined();
+  });
+
+  test('update with colliding tmdbId releases stale row instead of failing', async () => {
+    await mediaItemRepository.create({
+      id: 9001,
+      title: 'collision show',
+      mediaType: 'tv',
+      source: 'tmdb',
+      seasons: [
+        {
+          id: 9001,
+          seasonNumber: 1,
+          title: 'Season 1',
+          isSpecialSeason: false,
+          tmdbId: 9001,
+          episodes: [
+            {
+              id: 9001,
+              seasonNumber: 1,
+              episodeNumber: 1,
+              title: 'Episode 1',
+              isSpecialEpisode: false,
+              tmdbId: 111,
+            },
+            {
+              id: 9002,
+              seasonNumber: 1,
+              episodeNumber: 2,
+              title: 'Episode 2',
+              isSpecialEpisode: false,
+            },
+          ],
+        },
+        {
+          id: 9002,
+          seasonNumber: 2,
+          title: 'Season 2',
+          isSpecialSeason: false,
+          episodes: [],
+        },
+      ],
+    } as MediaItemBaseWithSeasons);
+
+    // User data on the stale episode must survive the heal.
+    await Database.knex('user').insert({
+      id: 1,
+      name: 'user',
+      password: 'password',
+      admin: true,
+    });
+    await Database.knex('seen').insert({
+      userId: 1,
+      mediaItemId: 9001,
+      episodeId: 9001,
+    });
+
+    // Fresh metadata reassigns tmdbId 111 to S01E02 and tmdbId 9001
+    // to season 2 (external renumbering).
+    await mediaItemRepository.update({
+      id: 9001,
+      seasons: [
+        {
+          id: 9001,
+          seasonNumber: 1,
+          episodes: [
+            {
+              id: 9001,
+              seasonNumber: 1,
+              episodeNumber: 1,
+            },
+            {
+              id: 9002,
+              seasonNumber: 1,
+              episodeNumber: 2,
+              tmdbId: 111,
+            },
+          ],
+        },
+        {
+          id: 9002,
+          seasonNumber: 2,
+          tmdbId: 9001,
+          episodes: [],
+        },
+      ],
+    } as MediaItemBaseWithSeasons);
+
+    const staleEpisode = await Database.knex('episode')
+      .where('id', 9001)
+      .first();
+    const movedEpisode = await Database.knex('episode')
+      .where('id', 9002)
+      .first();
+    const staleSeason = await Database.knex('season')
+      .where('id', 9001)
+      .first();
+    const movedSeason = await Database.knex('season')
+      .where('id', 9002)
+      .first();
+
+    expect(staleEpisode.tmdbId).toBeNull();
+    expect(movedEpisode.tmdbId).toEqual(111);
+    expect(staleSeason.tmdbId).toBeNull();
+    expect(movedSeason.tmdbId).toEqual(9001);
+    expect(
+      await Database.knex('seen').where('episodeId', 9001).first()
+    ).toBeDefined();
   });
 
   test('seasonAndEpisodeNumber', async () => {
